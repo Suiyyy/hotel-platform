@@ -1,0 +1,142 @@
+.list-page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.sort-tabs {
+  background-color: #fff;
+  padding: 10px 0;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-around;
+}
+
+.sort-tab {
+  padding: 10px 20px;
+  font-size: 15px;
+  color: #666;
+  position: relative;
+}
+
+.sort-tab-active {
+  color: #0066cc;
+  font-weight: 600;
+}
+
+.sort-tab-active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 3px;
+  background-color: #0066cc;
+  border-radius: 2px;
+}
+
+.hotel-list {
+  height: calc(100vh - 120px);
+}
+
+.hotel-card {
+  background-color: #fff;
+  margin: 10px 15px;
+  border-radius: 8px;
+  display: flex;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.hotel-image {
+  width: 120px;
+  height: 90px;
+  flex-shrink: 0;
+}
+
+.hotel-info {
+  flex: 1;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hotel-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hotel-stars {
+  margin-top: 4px;
+}
+
+.star {
+  font-size: 14px;
+  color: #ddd;
+  margin-right: 2px;
+}
+
+.star-filled {
+  color: #ff9800;
+}
+
+.hotel-address {
+  font-size: 12px;
+  color: #999;
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hotel-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px 0;
+}
+
+.hotel-rating {
+  font-size: 12px;
+  color: #0066cc;
+}
+
+.hotel-distance {
+  font-size: 12px;
+  color: #666;
+}
+
+.hotel-price {
+  display: flex;
+  align-items: baseline;
+}
+
+.price-label {
+  font-size: 12px;
+  color: #ff6600;
+}
+
+.price-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ff6600;
+  margin: 0 2px;
+}
+
+.price-unit {
+  font-size: 12px;
+  color: #999;
+}
+
+.loading-more,
+.no-more,
+.empty-state {
+  text-align: center;
+  padding: 20px;
+  color: #999;
+  font-size: 14px;
+}

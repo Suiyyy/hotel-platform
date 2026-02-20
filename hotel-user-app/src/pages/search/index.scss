@@ -1,0 +1,139 @@
+.search-page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.banner-swiper {
+  height: 200px;
+  width: 100%;
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
+}
+
+.search-form {
+  background-color: #fff;
+  margin: 20px;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.form-item {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.form-input {
+  width: 100%;
+  height: 44px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  padding: 0 12px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  border-color: #0066cc;
+  outline: none;
+}
+
+.date-selector {
+  width: 100%;
+  height: 44px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  background-color: #fff;
+}
+
+.date-text {
+  font-size: 14px;
+  color: #333;
+}
+
+.date-placeholder {
+  font-size: 14px;
+  color: #999;
+}
+
+.search-btn {
+  width: 100%;
+  height: 48px;
+  background-color: #0066cc;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 10px;
+}
+
+.search-btn:active {
+  background-color: #0052a3;
+}
+
+.calendar-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.calendar-modal-content {
+  width: 100%;
+  max-height: 80vh;
+  background-color: #fff;
+  border-radius: 15px 15px 0 0;
+  overflow: hidden;
+}
+
+.calendar-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.calendar-modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.calendar-close-btn {
+  width: 30px;
+  height: 30px;
+  background-color: transparent;
+  border: none;
+  font-size: 24px;
+  color: #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.calendar-close-btn:active {
+  color: #666;
+}
