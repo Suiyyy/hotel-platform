@@ -55,7 +55,7 @@
     "@tarojs/runtime": "3.6.37",
     "@tarojs/shared": "3.6.37",
     "@tarojs/taro": "3.6.37",
-    "antd-mobile": "^5.42.3",
+
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "sass": "^1.97.3"

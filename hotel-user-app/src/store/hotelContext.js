@@ -1,13 +1,40 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import Taro from '@tarojs/taro';
 import { mockHotels } from '../utils/mockData';
 
 const HotelContext = createContext();
 
 export const useHotelStore = () => useContext(HotelContext);
 
+// 平台兼容的存储方法
+const getStorage = (key) => {
+  try {
+    if (process.env.TARO_ENV === 'weapp') {
+      return Taro.getStorageSync(key);
+    } else if (typeof localStorage !== 'undefined') {
+      return localStorage.getItem(key);
+    }
+  } catch (error) {
+    console.error('获取存储失败:', error);
+  }
+  return null;
+};
+
+const setStorage = (key, value) => {
+  try {
+    if (process.env.TARO_ENV === 'weapp') {
+      Taro.setStorageSync(key, value);
+    } else if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(key, value);
+    }
+  } catch (error) {
+    console.error('设置存储失败:', error);
+  }
+};
+
 export const HotelProvider = ({ children }) => {
   const [hotels, setHotels] = useState(() => {
-    const stored = localStorage.getItem('hotels');
+    const stored = getStorage('hotels');
     return stored ? JSON.parse(stored) : mockHotels;
   });
 
@@ -18,7 +45,7 @@ export const HotelProvider = ({ children }) => {
   });
 
   useEffect(() => {
-    localStorage.setItem('hotels', JSON.stringify(hotels));
+    setStorage('hotels', JSON.stringify(hotels));
   }, [hotels]);
 
   const getApprovedOnlineHotels = () => {
