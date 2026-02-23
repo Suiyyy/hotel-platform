@@ -1,26 +1,14 @@
 import { useState } from 'react';
 import { View, Text, Input, Button, Swiper, SwiperItem, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-import { DatePicker } from 'antd-mobile';
 import { useHotelStore } from '../../store/hotelContext';
 import './index.scss';
 
 const SearchPage = () => {
   const [keyword, setKeyword] = useState('');
-  const [checkInDate, setCheckInDate] = useState(null);
-  const [checkOutDate, setCheckOutDate] = useState(null);
-  const [showCheckInPicker, setShowCheckInPicker] = useState(false);
-  const [showCheckOutPicker, setShowCheckOutPicker] = useState(false);
+  const [checkInDate, setCheckInDate] = useState('');
+  const [checkOutDate, setCheckOutDate] = useState('');
   const { searchHotels } = useHotelStore();
-
-  const formatDate = (date) => {
-    if (!date) return '';
-    const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
 
   const handleSearch = () => {
     if (!checkInDate || !checkOutDate) {
@@ -33,35 +21,36 @@ const SearchPage = () => {
     
     searchHotels({ 
       keyword, 
-      checkInDate: formatDate(checkInDate), 
-      checkOutDate: formatDate(checkOutDate) 
+      checkInDate,
+      checkOutDate 
     });
     Taro.navigateTo({
       url: '/pages/list/index'
     });
   };
 
-  const handleCheckInConfirm = (date) => {
-    setCheckInDate(date);
-    setShowCheckInPicker(false);
-    
-    if (!checkOutDate || new Date(date) >= new Date(checkOutDate)) {
-      const nextDay = new Date(date);
-      nextDay.setDate(nextDay.getDate() + 1);
-      setCheckOutDate(nextDay);
+  const handleDatePicker = (type) => {
+    try {
+      // 使用当前日期作为默认值
+      const date = new Date();
+      const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      
+      if (type === 'checkIn') {
+        setCheckInDate(formattedDate);
+        // 自动设置离店日期为第二天
+        const nextDay = new Date(date);
+        nextDay.setDate(nextDay.getDate() + 1);
+        const formattedNextDay = `${nextDay.getFullYear()}-${String(nextDay.getMonth() + 1).padStart(2, '0')}-${String(nextDay.getDate()).padStart(2, '0')}`;
+        setCheckOutDate(formattedNextDay);
+        Taro.showToast({ title: '已选择日期', icon: 'success' });
+      } else {
+        setCheckOutDate(formattedDate);
+        Taro.showToast({ title: '已选择日期', icon: 'success' });
+      }
+    } catch (error) {
+      console.error('Date picker error:', error);
+      Taro.showToast({ title: '选择日期失败', icon: 'none' });
     }
-  };
-
-  const handleCheckOutConfirm = (date) => {
-    if (checkInDate && new Date(date) <= new Date(checkInDate)) {
-      Taro.showToast({
-        title: '离店日期必须晚于入住日期',
-        icon: 'none'
-      });
-      return;
-    }
-    setCheckOutDate(date);
-    setShowCheckOutPicker(false);
   };
 
   const bannerImages = [
@@ -69,15 +58,6 @@ const SearchPage = () => {
     'https://picsum.photos/seed/banner2/750/300',
     'https://picsum.photos/seed/banner3/750/300'
   ];
-
-  const getMinCheckOutDate = () => {
-    if (checkInDate) {
-      const minDate = new Date(checkInDate);
-      minDate.setDate(minDate.getDate() + 1);
-      return minDate;
-    }
-    return null;
-  };
 
   return (
     <View className="search-page">
@@ -104,10 +84,11 @@ const SearchPage = () => {
           <Text className="form-label">入住日期</Text>
           <View 
             className="date-selector"
-            onClick={() => setShowCheckInPicker(true)}
+            onClick={() => handleDatePicker('checkIn')}
+            onTap={() => handleDatePicker('checkIn')}
           >
             <Text className={checkInDate ? 'date-text' : 'date-placeholder'}>
-              {checkInDate ? formatDate(checkInDate) : '选择入住日期'}
+              {checkInDate || '选择入住日期'}
             </Text>
           </View>
         </View>
@@ -116,34 +97,19 @@ const SearchPage = () => {
           <Text className="form-label">离店日期</Text>
           <View 
             className="date-selector"
-            onClick={() => setShowCheckOutPicker(true)}
+            onClick={() => handleDatePicker('checkOut')}
+            onTap={() => handleDatePicker('checkOut')}
           >
             <Text className={checkOutDate ? 'date-text' : 'date-placeholder'}>
-              {checkOutDate ? formatDate(checkOutDate) : '选择离店日期'}
+              {checkOutDate || '选择离店日期'}
             </Text>
           </View>
         </View>
 
-        <Button className="search-btn" onClick={handleSearch}>
+        <Button className="search-btn" onClick={handleSearch} onTap={handleSearch}>
           搜索酒店
         </Button>
       </View>
-
-      <DatePicker
-        title="选择入住日期"
-        visible={showCheckInPicker}
-        onConfirm={handleCheckInConfirm}
-        onCancel={() => setShowCheckInPicker(false)}
-        min={new Date()}
-      />
-
-      <DatePicker
-        title="选择离店日期"
-        visible={showCheckOutPicker}
-        onConfirm={handleCheckOutConfirm}
-        onCancel={() => setShowCheckOutPicker(false)}
-        min={getMinCheckOutDate() || new Date()}
-      />
     </View>
   );
 };
