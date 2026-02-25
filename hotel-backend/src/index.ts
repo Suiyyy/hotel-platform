@@ -3,6 +3,7 @@ import cors from 'cors'
 import { getAllHotels, setAllHotels } from './store.js'
 import { findUserByUsername, createUser } from './userStore.js'
 import { generateToken, authMiddleware } from './middleware/auth.js'
+import { validateHotelCreate, validateHotelPatch } from './middleware/validate.js'
 import type { IHotel } from './types/hotel.js'
 
 const app = express()
@@ -111,7 +112,7 @@ app.get('/hotels/mine', authMiddleware, async (req: Request, res: Response, next
   }
 })
 
-app.post('/hotels', async (req: Request, res: Response, next: NextFunction) => {
+app.post('/hotels', validateHotelCreate, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const payload = (req.body ?? {}) as Partial<IHotel>
     const now = new Date().toISOString()
@@ -133,7 +134,7 @@ app.post('/hotels', async (req: Request, res: Response, next: NextFunction) => {
   }
 })
 
-app.patch('/hotels/:id', async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
+app.patch('/hotels/:id', validateHotelPatch, async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params
     const patch = (req.body ?? {}) as Partial<IHotel>
