@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react'
-import { View, Text, Image, ScrollView, Button } from '@tarojs/components'
+import { useState, useEffect, useMemo } from 'react'
+import { View, Text, Image, ScrollView, Button, Swiper, SwiperItem } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useHotelStore } from '../../store/hotelContext'
-import type { IHotel } from '../../types/hotel'
+import type { IHotel, IRoomType } from '../../types/hotel'
 import './index.scss'
 
 const renderStars = (star: number) => {
-  const stars = []
+  const stars: JSX.Element[] = []
   for (let i = 0; i < 5; i++) {
     stars.push(
       <Text key={i} className={`star ${i < star ? 'star-filled' : ''}`}>★</Text>
@@ -15,8 +15,23 @@ const renderStars = (star: number) => {
   return stars
 }
 
+/** 生成酒店图片列表（主图 + 额外占位图） */
+const getHotelImages = (imageUrl: string, hotelId: string): string[] => {
+  return [
+    imageUrl,
+    `https://picsum.photos/seed/${hotelId}-2/750/400`,
+    `https://picsum.photos/seed/${hotelId}-3/750/400`,
+    `https://picsum.photos/seed/${hotelId}-4/750/400`,
+  ]
+}
+
+/** 按价格从低到高排序房型 */
+const sortRoomsByPrice = (rooms: IRoomType[]): IRoomType[] =>
+  [...rooms].sort((a, b) => a.price - b.price)
+
 const DetailPage = () => {
   const [hotel, setHotel] = useState<IHotel | null>(null)
+  const [currentSlide, setCurrentSlide] = useState(0)
   const router = Taro.getCurrentInstance().router
   const { getHotelById } = useHotelStore()
 
@@ -28,6 +43,18 @@ const DetailPage = () => {
     }
   }, [router, getHotelById])
 
+  const images = useMemo(
+    () => hotel ? getHotelImages(hotel.imageUrl, hotel.id) : [],
+    [hotel]
+  )
+
+  const sortedRooms = useMemo(
+    () => hotel ? sortRoomsByPrice(hotel.roomTypes) : [],
+    [hotel]
+  )
+
+  const lowestPrice = sortedRooms.length > 0 ? sortedRooms[0].price : hotel?.price
+
   if (!hotel) {
     return (
       <View className='detail-page loading'>
@@ -38,8 +65,27 @@ const DetailPage = () => {
 
   return (
     <View className='detail-page'>
-      <ScrollView className='detail-scroll' scrollY={true}>
-        <Image className='hotel-detail-image' src={hotel.imageUrl} mode='aspectFill' />
+      <ScrollView className='detail-scroll' scrollY>
+        <View className='swiper-wrapper'>
+          <Swiper
+            className='hotel-swiper'
+            indicatorDots={false}
+            autoplay
+            circular
+            onChange={(e) => setCurrentSlide(e.detail.current)}
+          >
+            {images.map((img, index) => (
+              <SwiperItem key={index}>
+                <Image className='hotel-swiper-image' src={img} mode='aspectFill' />
+              </SwiperItem>
+            ))}
+          </Swiper>
+          <View className='swiper-indicator'>
+            <Text className='swiper-indicator-text'>
+              {currentSlide + 1}/{images.length}
+            </Text>
+          </View>
+        </View>
 
         <View className='hotel-detail-info'>
           <Text className='hotel-detail-name'>{hotel.nameCn}</Text>
@@ -84,11 +130,14 @@ const DetailPage = () => {
           </View>
 
           <View className='hotel-detail-section'>
-            <Text className='section-title'>房型</Text>
-            {hotel.roomTypes.map((room) => (
+            <Text className='section-title'>房型（按价格排序）</Text>
+            {sortedRooms.map((room, index) => (
               <View key={room.id} className='room-item'>
                 <View className='room-info'>
-                  <Text className='room-name'>{room.name}</Text>
+                  <Text className='room-name'>
+                    {room.name}
+                    {index === 0 && <Text className='lowest-price-tag'>最低价</Text>}
+                  </Text>
                   <Text className='room-detail'>{room.area}㎡ · {room.bedType}</Text>
                 </View>
                 <View className='room-price'>
@@ -105,7 +154,7 @@ const DetailPage = () => {
       <View className='detail-footer'>
         <View className='footer-price'>
           <Text className='footer-price-label'>¥</Text>
-          <Text className='footer-price-value'>{hotel.price}</Text>
+          <Text className='footer-price-value'>{lowestPrice}</Text>
           <Text className='footer-price-unit'>起/晚</Text>
         </View>
         <Button className='footer-btn'>预订</Button>

@@ -15,9 +15,32 @@
   height: calc(100vh - 70px);
 }
 
-.hotel-detail-image {
+.swiper-wrapper {
+  position: relative;
+}
+
+.hotel-swiper {
   width: 100%;
   height: 250px;
+}
+
+.hotel-swiper-image {
+  width: 100%;
+  height: 100%;
+}
+
+.swiper-indicator {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.swiper-indicator-text {
+  font-size: 12px;
+  color: #fff;
 }
 
 .hotel-detail-info {
@@ -119,6 +142,18 @@
   font-weight: 600;
   color: #333;
   display: block;
+}
+
+.lowest-price-tag {
+  display: inline-block;
+  background-color: #ff6600;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-left: 8px;
+  vertical-align: middle;
 }
 
 .room-detail {
