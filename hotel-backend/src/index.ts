@@ -1,9 +1,11 @@
+import http from 'node:http'
 import express, { type Request, type Response, type NextFunction } from 'express'
 import cors from 'cors'
 import { getAllHotels, setAllHotels } from './store.js'
 import { findUserByUsername, createUser } from './userStore.js'
 import { generateToken, authMiddleware } from './middleware/auth.js'
 import { validateHotelCreate, validateHotelPatch } from './middleware/validate.js'
+import { setupWebSocket, broadcastPriceUpdate } from './ws.js'
 import type { IHotel } from './types/hotel.js'
 
 const app = express()
@@ -176,6 +178,12 @@ app.patch('/hotels/:id', validateHotelPatch, async (req: Request<{ id: string }>
     const nextHotels = hotels.slice()
     nextHotels[index] = updated
     await setAllHotels(nextHotels)
+
+    // Broadcast price update via WebSocket
+    if (patch.price !== undefined && patch.price !== hotels[index].price) {
+      broadcastPriceUpdate(id, updated.price)
+    }
+
     res.json(updated)
   } catch (e) {
     next(e)
@@ -189,6 +197,9 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({ message: 'internal_error' })
 })
 
-app.listen(PORT, () => {
+const server = http.createServer(app)
+setupWebSocket(server)
+
+server.listen(PORT, () => {
   console.log(`[hotel-backend] listening on http://localhost:${PORT}`)
 })
