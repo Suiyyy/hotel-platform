@@ -1,4 +1,6 @@
-const mockHotels = [
+import type { IHotel, IUser } from '../types/hotel'
+
+const mockHotels: IHotel[] = [
   {
     id: "1",
     nameCn: "上海陆家嘴金融中心酒店",
@@ -120,9 +122,9 @@ const mockHotels = [
     createTime: "2024-01-05",
     updateTime: "2024-01-05"
   }
-];
+]
 
-const mockUsers = [
+const mockUsers: IUser[] = [
   {
     id: "1",
     username: "admin",
@@ -141,6 +143,6 @@ const mockUsers = [
     password: "123456",
     role: "user"
   }
-];
+]
 
-export { mockHotels, mockUsers };
+export { mockHotels, mockUsers }
