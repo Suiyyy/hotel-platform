@@ -1,61 +1,27 @@
-import fs from 'node:fs/promises'
-import path from 'node:path'
-import type { IUser, IUserDatabase } from './types/hotel.js'
-
-const dataFile = path.resolve(process.cwd(), 'data', 'users.json')
-
-let writeChain: Promise<void> = Promise.resolve()
-
-const defaultUsers: IUser[] = [
-  { id: '1', username: 'admin', password: '123456', role: 'admin' },
-  { id: '2', username: 'user', password: '123456', role: 'user' }
-]
-
-async function readJson(): Promise<IUserDatabase> {
-  try {
-    const text = await fs.readFile(dataFile, 'utf8')
-    const parsed = JSON.parse(text) as unknown
-    if (!parsed || typeof parsed !== 'object') return { users: defaultUsers }
-    if (!Array.isArray((parsed as IUserDatabase).users)) return { users: defaultUsers }
-    return parsed as IUserDatabase
-  } catch (error) {
-    if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
-      return { users: defaultUsers }
-    }
-    throw error
-  }
-}
-
-async function writeJson(next: IUserDatabase): Promise<void> {
-  await fs.mkdir(path.dirname(dataFile), { recursive: true })
-  await fs.writeFile(dataFile, JSON.stringify(next, null, 2), 'utf8')
-}
+import { redis } from './redis.js'
+import type { IUser } from './types/hotel.js'
 
 export async function getAllUsers(): Promise<IUser[]> {
-  const db = await readJson()
-  return db.users
-}
-
-export async function setAllUsers(users: IUser[]): Promise<void> {
-  writeChain = writeChain.then(async () => {
-    await writeJson({ users })
-  })
-  await writeChain
+  const keys = await redis.keys('user:*')
+  if (keys.length === 0) return []
+  const values = await redis.mget(...keys)
+  return values
+    .filter((v: string | null): v is string => v !== null)
+    .map((v: string) => JSON.parse(v) as IUser)
 }
 
 export async function findUserByUsername(username: string): Promise<IUser | undefined> {
-  const users = await getAllUsers()
-  return users.find(u => u.username === username)
+  const val = await redis.get(`user:${username}`)
+  return val ? (JSON.parse(val) as IUser) : undefined
 }
 
 export async function createUser(username: string, password: string, role: IUser['role']): Promise<IUser> {
-  const users = await getAllUsers()
   const newUser: IUser = {
     id: Date.now().toString(),
     username,
     password,
     role
   }
-  await setAllUsers([...users, newUser])
+  await redis.set(`user:${username}`, JSON.stringify(newUser))
   return newUser
 }

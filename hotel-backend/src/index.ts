@@ -1,7 +1,8 @@
 import http from 'node:http'
 import express, { type Request, type Response, type NextFunction } from 'express'
 import cors from 'cors'
-import { getAllHotels, setAllHotels } from './store.js'
+import { initRedis } from './redis.js'
+import { getAllHotels, getHotel, saveHotel } from './store.js'
 import { findUserByUsername, createUser } from './userStore.js'
 import { generateToken, authMiddleware } from './middleware/auth.js'
 import { validateHotelCreate, validateHotelPatch } from './middleware/validate.js'
@@ -146,7 +147,6 @@ app.post('/hotels', validateHotelCreate, async (req: Request, res: Response, nex
   try {
     const payload = (req.body ?? {}) as Partial<IHotel>
     const now = new Date().toISOString()
-    const hotels = await getAllHotels()
     const newHotel: IHotel = {
       ...payload as IHotel,
       id: Date.now().toString(),
@@ -157,8 +157,7 @@ app.post('/hotels', validateHotelCreate, async (req: Request, res: Response, nex
       isOnline: false,
       rejectReason: ''
     }
-    const nextHotels = [...hotels, newHotel]
-    await setAllHotels(nextHotels)
+    await saveHotel(newHotel)
     res.status(201).json(newHotel)
   } catch (e) {
     next(e)
@@ -169,19 +168,16 @@ app.patch('/hotels/:id', validateHotelPatch, async (req: Request<{ id: string }>
   try {
     const { id } = req.params
     const patch = (req.body ?? {}) as Partial<IHotel>
-    const hotels = await getAllHotels()
-    const index = hotels.findIndex((h: IHotel) => h.id === id)
-    if (index === -1) {
+    const existing = await getHotel(id)
+    if (!existing) {
       res.status(404).json({ message: 'not_found' })
       return
     }
-    const updated: IHotel = { ...hotels[index], ...patch, updateTime: new Date().toISOString() }
-    const nextHotels = hotels.slice()
-    nextHotels[index] = updated
-    await setAllHotels(nextHotels)
+    const updated: IHotel = { ...existing, ...patch, updateTime: new Date().toISOString() }
+    await saveHotel(updated)
 
     // Broadcast price update via WebSocket
-    if (patch.price !== undefined && patch.price !== hotels[index].price) {
+    if (patch.price !== undefined && patch.price !== existing.price) {
       broadcastPriceUpdate(id, updated.price)
     }
 
@@ -196,16 +192,13 @@ app.patch('/hotels/:id', validateHotelPatch, async (req: Request<{ id: string }>
 app.delete('/hotels/:id', async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params
-    const hotels = await getAllHotels()
-    const index = hotels.findIndex((h: IHotel) => h.id === id)
-    if (index === -1) {
+    const existing = await getHotel(id)
+    if (!existing) {
       res.status(404).json({ message: 'not_found' })
       return
     }
-    const updated: IHotel = { ...hotels[index], isOnline: false, updateTime: new Date().toISOString() }
-    const nextHotels = hotels.slice()
-    nextHotels[index] = updated
-    await setAllHotels(nextHotels)
+    const updated: IHotel = { ...existing, isOnline: false, updateTime: new Date().toISOString() }
+    await saveHotel(updated)
     res.json(updated)
   } catch (e) {
     next(e)
@@ -215,20 +208,17 @@ app.delete('/hotels/:id', async (req: Request<{ id: string }>, res: Response, ne
 app.patch('/hotels/:id/restore', async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params
-    const hotels = await getAllHotels()
-    const index = hotels.findIndex((h: IHotel) => h.id === id)
-    if (index === -1) {
+    const existing = await getHotel(id)
+    if (!existing) {
       res.status(404).json({ message: 'not_found' })
       return
     }
-    if (hotels[index].status !== 'approved') {
+    if (existing.status !== 'approved') {
       res.status(400).json({ message: '仅已通过审核的酒店可以恢复上线' })
       return
     }
-    const updated: IHotel = { ...hotels[index], isOnline: true, updateTime: new Date().toISOString() }
-    const nextHotels = hotels.slice()
-    nextHotels[index] = updated
-    await setAllHotels(nextHotels)
+    const updated: IHotel = { ...existing, isOnline: true, updateTime: new Date().toISOString() }
+    await saveHotel(updated)
     res.json(updated)
   } catch (e) {
     next(e)
@@ -245,6 +235,14 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 const server = http.createServer(app)
 setupWebSocket(server)
 
-server.listen(PORT, () => {
-  console.log(`[hotel-backend] listening on http://localhost:${PORT}`)
-})
+// 先连接 Redis 并加载初始数据，再启动 HTTP 服务
+initRedis()
+  .then(() => {
+    server.listen(PORT, () => {
+      console.log(`[hotel-backend] listening on http://localhost:${PORT}`)
+    })
+  })
+  .catch((err) => {
+    console.error('[redis] init failed:', err)
+    process.exit(1)
+  })
