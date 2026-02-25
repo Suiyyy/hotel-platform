@@ -8,7 +8,7 @@
 hotel-platform-main/
 ├── hotel-user-app/      # C端用户应用（Taro 4 + React 18 + TypeScript）
 ├── hotel-admin-app/     # B端管理后台（React 19 + Vite + Ant Design 5）
-└── hotel-backend/       # 后端服务（Express 4 + TypeScript + JSON 文件存储）
+└── hotel-backend/       # 后端服务（Express 4 + TypeScript + Redis）
 ```
 
 ## 技术栈
@@ -17,7 +17,7 @@ hotel-platform-main/
 |--------|--------|
 | hotel-user-app | Taro 4、React 18、Vite、TypeScript、SCSS |
 | hotel-admin-app | React 19、Vite、Ant Design 5、TypeScript |
-| hotel-backend | Express 4、TypeScript、WebSocket (ws)、JSON File DB |
+| hotel-backend | Express 4、TypeScript、WebSocket (ws)、Redis (ioredis) |
 
 ## 功能特性
 
@@ -39,6 +39,7 @@ hotel-platform-main/
 - 夜间模式：Ant Design darkAlgorithm
 
 ### 后端服务
+- Redis 存储：启动时从 JSON 文件 seed 初始数据，运行时全部走 Redis
 - RESTful API：完整 CRUD + 认证中间件
 - 请求校验：字段类型和范围验证
 - 分页查询：keyword/sort/order/page/pageSize
@@ -48,14 +49,24 @@ hotel-platform-main/
 ## 快速启动
 
 ### 前置要求
+
 - Node.js >= 18
 - pnpm
+- Redis
+
+### 启动 Redis
+
+```bash
+brew install redis
+brew services start redis
+```
 
 ### 启动后端
+
 ```bash
 cd hotel-backend
 pnpm install
-pnpm dev     # 默认端口 3001
+pnpm dev     # 默认端口 3001，启动时自动从 data/hotels.json seed 数据到 Redis
 ```
 
 ### 启动管理后台
