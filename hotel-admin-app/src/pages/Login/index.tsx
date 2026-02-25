@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Form, Input, Button, Card, message, Tabs } from 'antd'
+import { Form, Input, Button, Card, message, Tabs, Radio } from 'antd'
 import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { useHotelStore } from '../../store/hotelContext'
@@ -27,7 +27,7 @@ const LoginPage = () => {
   const handleLogin = async (values: ILoginFormValues) => {
     setLoading(true)
     try {
-      const result = login(values.username, values.password)
+      const result = await login(values.username, values.password)
       if (result.success) {
         message.success('登录成功')
         if (result.user?.role === 'admin') {
@@ -48,7 +48,7 @@ const LoginPage = () => {
   const handleRegister = async (values: IRegisterFormValues) => {
     setLoading(true)
     try {
-      const result = register(values.username, values.password, values.role)
+      const result = await register(values.username, values.password, values.role)
       if (result.success) {
         message.success('注册成功，请登录')
         setActiveTab('login')
@@ -109,7 +109,7 @@ const LoginPage = () => {
           <div className="login-tips">
             <p>测试账号：</p>
             <p>管理员：admin / 123456</p>
-            <p>普通用户：user / 123456</p>
+            <p>商户：user / 123456</p>
           </div>
         </div>
       ),
@@ -175,9 +175,13 @@ const LoginPage = () => {
             <Form.Item
               name="role"
               initialValue="user"
+              label="注册角色"
               rules={[{ required: true, message: '请选择角色' }]}
             >
-              <Input placeholder="角色（user/admin）" />
+              <Radio.Group>
+                <Radio value="user">商户（录入/管理酒店）</Radio>
+                <Radio value="admin">管理员（审核酒店）</Radio>
+              </Radio.Group>
             </Form.Item>
 
             <Form.Item>
