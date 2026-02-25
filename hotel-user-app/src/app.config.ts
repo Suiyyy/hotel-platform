@@ -1,11 +1,13 @@
 export default defineAppConfig({
   pages: [
-    'pages/index/index'
+    'pages/search/index',
+    'pages/list/index',
+    'pages/detail/index'
   ],
   window: {
     backgroundTextStyle: 'light',
-    navigationBarBackgroundColor: '#fff',
+    navigationBarBackgroundColor: '#0066cc',
     navigationBarTitleText: '酒店预订',
-    navigationBarTextStyle: 'black'
+    navigationBarTextStyle: 'white'
   }
 })
