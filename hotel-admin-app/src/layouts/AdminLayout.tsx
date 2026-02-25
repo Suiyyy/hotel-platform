@@ -1,13 +1,15 @@
-import { Layout, Menu, Button } from 'antd'
-import { HomeOutlined, PlusOutlined, AuditOutlined, LogoutOutlined } from '@ant-design/icons'
+import { Layout, Menu, Button, Switch } from 'antd'
+import { HomeOutlined, PlusOutlined, AuditOutlined, LogoutOutlined, BulbOutlined } from '@ant-design/icons'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useHotelStore } from '../store/hotelContext'
+import { useTheme } from '../store/themeContext'
 import type { MenuProps } from 'antd'
 
 const { Header, Sider, Content } = Layout
 
 const AdminLayout = () => {
   const { currentUser, logout } = useHotelStore()
+  const { isDark, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -43,6 +45,12 @@ const AdminLayout = () => {
       </Sider>
       <Layout>
         <Header style={{ background: '#fff', padding: '0 24px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+          <Switch
+            checkedChildren={<BulbOutlined />}
+            unCheckedChildren={<BulbOutlined />}
+            checked={isDark}
+            onChange={toggleTheme}
+          />
           <span>欢迎，{currentUser?.role === 'admin' ? '管理员' : '商户'} {currentUser?.username}</span>
           <Button type="text" icon={<LogoutOutlined />} onClick={handleLogout}>退出</Button>
         </Header>
