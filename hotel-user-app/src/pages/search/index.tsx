@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { View, Text, Input, Button, Swiper, SwiperItem, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useHotelStore } from '../../store/hotelContext'
+import Calendar from '../../components/Calendar'
 import './index.scss'
 
 const bannerImages = [
@@ -14,6 +15,7 @@ const SearchPage = () => {
   const [keyword, setKeyword] = useState('')
   const [checkInDate, setCheckInDate] = useState('')
   const [checkOutDate, setCheckOutDate] = useState('')
+  const [showCalendar, setShowCalendar] = useState(false)
   const { searchHotels } = useHotelStore()
 
   const handleSearch = () => {
@@ -25,25 +27,10 @@ const SearchPage = () => {
     Taro.navigateTo({ url: '/pages/list/index' })
   }
 
-  const handleDatePicker = (type: 'checkIn' | 'checkOut') => {
-    try {
-      const date = new Date()
-      const formatDate = (d: Date) =>
-        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-
-      if (type === 'checkIn') {
-        setCheckInDate(formatDate(date))
-        const nextDay = new Date(date)
-        nextDay.setDate(nextDay.getDate() + 1)
-        setCheckOutDate(formatDate(nextDay))
-      } else {
-        setCheckOutDate(formatDate(date))
-      }
-      Taro.showToast({ title: '已选择日期', icon: 'success' })
-    } catch (error) {
-      console.error('Date picker error:', error)
-      Taro.showToast({ title: '选择日期失败', icon: 'none' })
-    }
+  const handleDateSelect = (checkIn: string, checkOut: string) => {
+    setCheckInDate(checkIn)
+    setCheckOutDate(checkOut)
+    setShowCalendar(false)
   }
 
   return (
@@ -69,7 +56,7 @@ const SearchPage = () => {
 
         <View className='form-item'>
           <Text className='form-label'>入住日期</Text>
-          <View className='date-selector' onClick={() => handleDatePicker('checkIn')}>
+          <View className='date-selector' onClick={() => setShowCalendar(true)}>
             <Text className={checkInDate ? 'date-text' : 'date-placeholder'}>
               {checkInDate || '选择入住日期'}
             </Text>
@@ -78,7 +65,7 @@ const SearchPage = () => {
 
         <View className='form-item'>
           <Text className='form-label'>离店日期</Text>
-          <View className='date-selector' onClick={() => handleDatePicker('checkOut')}>
+          <View className='date-selector' onClick={() => setShowCalendar(true)}>
             <Text className={checkOutDate ? 'date-text' : 'date-placeholder'}>
               {checkOutDate || '选择离店日期'}
             </Text>
@@ -89,6 +76,18 @@ const SearchPage = () => {
           搜索酒店
         </Button>
       </View>
+
+      {showCalendar && (
+        <View className='calendar-overlay' onClick={() => setShowCalendar(false)}>
+          <View className='calendar-popup' onClick={(e) => e.stopPropagation()}>
+            <Calendar
+              onDateSelect={handleDateSelect}
+              checkInDate={checkInDate}
+              checkOutDate={checkOutDate}
+            />
+          </View>
+        </View>
+      )}
     </View>
   )
 }
