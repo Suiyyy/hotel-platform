@@ -5,18 +5,9 @@ import { useHotelStore } from '../../store/hotelContext'
 import { useFavorites } from '../../store/favoritesContext'
 import { useHistory } from '../../store/historyContext'
 import { onPriceUpdate } from '../../services/wsClient'
+import StarRating from '../../components/StarRating'
 import type { IHotel, IRoomType } from '../../types/hotel'
 import './index.scss'
-
-const renderStars = (star: number) => {
-  const stars: JSX.Element[] = []
-  for (let i = 0; i < 5; i++) {
-    stars.push(
-      <Text key={i} className={`star ${i < star ? 'star-filled' : ''}`}>★</Text>
-    )
-  }
-  return stars
-}
 
 /** 生成酒店图片列表（主图 + 额外占位图） */
 const getHotelImages = (imageUrl: string, hotelId: string): string[] => {
@@ -109,7 +100,7 @@ const DetailPage = () => {
             <Text className='hotel-detail-name-en'>{hotel.nameEn}</Text>
           )}
 
-          <View className='hotel-detail-stars'>{renderStars(hotel.star)}</View>
+          <View className='hotel-detail-stars'><StarRating star={hotel.star} /></View>
 
           <View className='hotel-detail-meta'>
             <Text className='meta-item'>评分 {hotel.rating}</Text>

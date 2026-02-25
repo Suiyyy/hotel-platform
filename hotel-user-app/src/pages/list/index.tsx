@@ -5,6 +5,8 @@ import { useHotelStore } from '../../store/hotelContext'
 import { fetchPublicHotelsPaged } from '../../services/hotelApi'
 import { onPriceUpdate } from '../../services/wsClient'
 import VirtualList from '../../components/VirtualList'
+import StarRating from '../../components/StarRating'
+import { SORT_OPTIONS } from '../../utils/constants'
 import type { IHotel } from '../../types/hotel'
 import './index.scss'
 
@@ -13,26 +15,10 @@ type SortKey = 'price' | 'rating' | 'distance'
 const PAGE_SIZE = 10
 const ITEM_HEIGHT = 140
 
-const sortOptions: { key: SortKey; label: string }[] = [
-  { key: 'price', label: '价格' },
-  { key: 'rating', label: '评分' },
-  { key: 'distance', label: '距离' }
-]
-
 const sortOrderMap: Record<SortKey, 'asc' | 'desc'> = {
   price: 'asc',
   rating: 'desc',
   distance: 'asc'
-}
-
-const renderStars = (star: number) => {
-  const stars: JSX.Element[] = []
-  for (let i = 0; i < 5; i++) {
-    stars.push(
-      <Text key={i} className={`star ${i < star ? 'star-filled' : ''}`}>★</Text>
-    )
-  }
-  return stars
 }
 
 const ListPage = () => {
@@ -98,7 +84,7 @@ const ListPage = () => {
       <Image className='hotel-image' src={hotel.imageUrl} mode='aspectFill' />
       <View className='hotel-info'>
         <Text className='hotel-name'>{hotel.nameCn}</Text>
-        <View className='hotel-stars'>{renderStars(hotel.star)}</View>
+        <View className='hotel-stars'><StarRating star={hotel.star} /></View>
         <Text className='hotel-address'>{hotel.address}</Text>
         <View className='hotel-meta'>
           <Text className='hotel-rating'>评分 {hotel.rating}</Text>
@@ -119,7 +105,7 @@ const ListPage = () => {
   return (
     <View className='list-page'>
       <View className='sort-tabs'>
-        {sortOptions.map((option) => (
+        {SORT_OPTIONS.map((option) => (
           <View
             key={option.key}
             className={`sort-tab ${sortBy === option.key ? 'sort-tab-active' : ''}`}

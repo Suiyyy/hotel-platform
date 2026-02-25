@@ -2,17 +2,9 @@ import { View, Text, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useHotelStore } from '../../store/hotelContext'
 import { useHistory } from '../../store/historyContext'
+import { formatDateTime } from '../../utils/format'
 import type { IHotel } from '../../types/hotel'
 import './index.scss'
-
-const formatTime = (iso: string): string => {
-  const d = new Date(iso)
-  const month = d.getMonth() + 1
-  const day = d.getDate()
-  const hour = String(d.getHours()).padStart(2, '0')
-  const min = String(d.getMinutes()).padStart(2, '0')
-  return `${month}月${day}日 ${hour}:${min}`
-}
 
 const HistoryPage = () => {
   const { history, clearHistory } = useHistory()
@@ -52,7 +44,7 @@ const HistoryPage = () => {
                 <Text className='history-name'>{hotel.nameCn}</Text>
                 <Text className='history-address'>{hotel.address}</Text>
                 <View className='history-bottom'>
-                  <Text className='history-time'>{formatTime(item.visitTime)}</Text>
+                  <Text className='history-time'>{formatDateTime(item.visitTime)}</Text>
                   <View className='history-price'>
                     <Text className='history-price-symbol'>¥</Text>
                     <Text className='history-price-value'>{hotel.price}</Text>
