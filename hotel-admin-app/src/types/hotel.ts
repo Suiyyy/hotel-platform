@@ -53,8 +53,8 @@ export interface IHotelContextValue {
   login: (username: string, password: string) => ILoginResult
   register: (username: string, password: string, role: IUser['role']) => IRegisterResult
   logout: () => void
-  addHotel: (hotelData: Partial<IHotel>) => IHotel
-  updateHotel: (id: string, data: Partial<IHotel>) => IHotel | undefined
-  updateHotelStatus: (id: string, status: IHotel['status'], rejectReason?: string) => IHotel | undefined
-  toggleHotelOnline: (id: string) => IHotel | undefined
+  addHotel: (hotelData: Partial<IHotel>) => Promise<IHotel>
+  updateHotel: (id: string, data: Partial<IHotel>) => Promise<IHotel>
+  updateHotelStatus: (id: string, status: IHotel['status'], rejectReason?: string) => Promise<IHotel>
+  toggleHotelOnline: (id: string) => Promise<IHotel>
 }
