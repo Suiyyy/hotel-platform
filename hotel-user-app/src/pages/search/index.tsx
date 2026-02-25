@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { View, Text, Input, Button, Swiper, SwiperItem, Image } from '@tarojs/components'
+import { View, Text, Input, Button, Swiper, SwiperItem, Image, Textarea } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useHotelStore } from '../../store/hotelContext'
 import { useTheme } from '../../store/themeContext'
@@ -17,6 +17,8 @@ const SearchPage = () => {
   const [checkInDate, setCheckInDate] = useState('')
   const [checkOutDate, setCheckOutDate] = useState('')
   const [showCalendar, setShowCalendar] = useState(false)
+  const [showAiModal, setShowAiModal] = useState(false)
+  const [aiQuery, setAiQuery] = useState('')
   const { searchHotels } = useHotelStore()
   const { isDark, toggleTheme } = useTheme()
 
@@ -27,6 +29,16 @@ const SearchPage = () => {
     }
     searchHotels({ keyword, checkInDate, checkOutDate })
     Taro.navigateTo({ url: '/pages/list/index' })
+  }
+
+  const handleAiSearch = () => {
+    const query = aiQuery.trim()
+    if (!query) {
+      Taro.showToast({ title: '请描述您的需求', icon: 'none' })
+      return
+    }
+    setShowAiModal(false)
+    Taro.navigateTo({ url: `/pages/list/index?aiQuery=${encodeURIComponent(query)}` })
   }
 
   const handleDateSelect = (checkIn: string, checkOut: string) => {
@@ -80,9 +92,14 @@ const SearchPage = () => {
           </View>
         </View>
 
-        <Button className='search-btn' onClick={handleSearch}>
-          搜索酒店
-        </Button>
+        <View className='search-btn-group'>
+          <Button className='search-btn' onClick={handleSearch}>
+            搜索酒店
+          </Button>
+          <View className='ai-search-btn' onClick={() => setShowAiModal(true)}>
+            <Text className='ai-search-icon'>AI</Text>
+          </View>
+        </View>
       </View>
 
       {showCalendar && (
@@ -93,6 +110,28 @@ const SearchPage = () => {
               checkInDate={checkInDate}
               checkOutDate={checkOutDate}
             />
+          </View>
+        </View>
+      )}
+
+      {showAiModal && (
+        <View className='ai-modal-overlay' onClick={() => setShowAiModal(false)}>
+          <View className='ai-modal' onClick={(e) => e.stopPropagation()}>
+            <Text className='ai-modal-title'>AI 智能找房</Text>
+            <Text className='ai-modal-hint'>
+              用自然语言描述您的需求，AI 帮您精准匹配
+            </Text>
+            <Textarea
+              className='ai-modal-input'
+              placeholder='例如：帮我找武汉光谷附近，适合带父母住的安静且带双早的酒店'
+              value={aiQuery}
+              onInput={(e) => setAiQuery(e.detail.value)}
+              maxlength={200}
+              autoFocus
+            />
+            <Button className='ai-modal-btn' onClick={handleAiSearch}>
+              开始智能搜索
+            </Button>
           </View>
         </View>
       )}

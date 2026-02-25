@@ -11,7 +11,8 @@ export const redis = new Redis({
 
 const defaultUsers: IUser[] = [
   { id: '1', username: 'admin', password: '123456', role: 'admin' },
-  { id: '2', username: 'user', password: '123456', role: 'user' }
+  { id: '2', username: 'user', password: '123456', role: 'user' },
+  { id: '3', username: 'test1', password: '123456', role: 'user' }
 ]
 
 export async function initRedis(): Promise<void> {

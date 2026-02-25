@@ -7,6 +7,7 @@ import { findUserByUsername, createUser } from './userStore.js'
 import { generateToken, authMiddleware } from './middleware/auth.js'
 import { validateHotelCreate, validateHotelPatch } from './middleware/validate.js'
 import { setupWebSocket, broadcastPriceUpdate } from './ws.js'
+import { parseSearchIntent, aiSearchHotels } from './ai.js'
 import type { IHotel } from './types/hotel.js'
 
 const app = express()
@@ -220,6 +221,25 @@ app.patch('/hotels/:id/restore', async (req: Request<{ id: string }>, res: Respo
     const updated: IHotel = { ...existing, isOnline: true, updateTime: new Date().toISOString() }
     await saveHotel(updated)
     res.json(updated)
+  } catch (e) {
+    next(e)
+  }
+})
+
+// ==================== AI Search ====================
+
+app.post('/ai/search', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { query, page, pageSize } = req.body as { query?: string; page?: number; pageSize?: number }
+    if (!query || !query.trim()) {
+      res.status(400).json({ message: '请输入搜索描述' })
+      return
+    }
+
+    const { intent, fallback } = await parseSearchIntent(query.trim())
+    const result = await aiSearchHotels(intent, page || 1, pageSize || 10, fallback)
+
+    res.json(result)
   } catch (e) {
     next(e)
   }

@@ -90,8 +90,14 @@
   color: var(--text-disabled);
 }
 
+.search-btn-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
 .search-btn {
-  width: 100%;
+  flex: 1;
   height: 50px;
   background: linear-gradient(135deg, var(--accent-color) 0%, #0052a3 100%);
   color: #fff;
@@ -99,7 +105,6 @@
   border-radius: 12px;
   font-size: 16px;
   font-weight: 600;
-  margin-top: 10px;
   letter-spacing: 1px;
   transition: transform 0.15s ease, box-shadow 0.25s ease;
 }
@@ -107,6 +112,98 @@
 .search-btn:active {
   transform: scale(0.97);
   box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
+}
+
+.ai-search-btn {
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, box-shadow 0.25s ease;
+}
+
+.ai-search-btn:active {
+  transform: scale(0.93);
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+}
+
+.ai-search-icon {
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+
+// AI 搜索弹窗
+.ai-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+}
+
+.ai-modal {
+  width: 100%;
+  background-color: var(--bg-card);
+  border-radius: 16px;
+  padding: 24px 20px;
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.ai-modal-title {
+  display: block;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.ai-modal-hint {
+  display: block;
+  font-size: 13px;
+  color: var(--text-hint);
+  margin-bottom: 16px;
+}
+
+.ai-modal-input {
+  width: 100%;
+  height: 120px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  box-sizing: border-box;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.ai-modal-input:focus {
+  border-color: #7c3aed;
+  outline: none;
+}
+
+.ai-modal-btn {
+  width: 100%;
+  height: 46px;
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 14px;
 }
 
 // 主题切换

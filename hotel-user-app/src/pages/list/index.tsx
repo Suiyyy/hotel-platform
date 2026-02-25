@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { View, Text, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useHotelStore } from '../../store/hotelContext'
-import { fetchPublicHotelsPaged } from '../../services/hotelApi'
+import { fetchPublicHotelsPaged, aiSearch } from '../../services/hotelApi'
 import { onPriceUpdate } from '../../services/wsClient'
 import VirtualList from '../../components/VirtualList'
 import StarRating from '../../components/StarRating'
@@ -27,29 +27,47 @@ const ListPage = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const [loading, setLoading] = useState(false)
+  const [isFallback, setIsFallback] = useState(false)
   const { searchParams } = useHotelStore()
+
+  const router = Taro.getCurrentInstance().router
+  const aiQueryParam = router?.params?.aiQuery ? decodeURIComponent(router.params.aiQuery) : ''
+  const isAiMode = !!aiQueryParam
 
   const loadHotels = useCallback(async (page: number, reset = false) => {
     if (loading) return
     setLoading(true)
     try {
-      const result = await fetchPublicHotelsPaged({
-        keyword: searchParams.keyword || undefined,
-        sort: sortBy,
-        order: sortOrderMap[sortBy],
-        page,
-        pageSize: PAGE_SIZE
-      })
-      const newList = reset ? result.data : [...displayedHotels, ...result.data]
-      setDisplayedHotels(newList)
-      setCurrentPage(page)
-      setHasMore(newList.length < result.total)
+      if (isAiMode) {
+        // AI 搜索模式：调用 AI 接口
+        Taro.showLoading({ title: 'AI 正在搜索...' })
+        const result = await aiSearch(aiQueryParam)
+        setDisplayedHotels(result.data)
+        setIsFallback(result.fallback)
+        setHasMore(false)
+        Taro.hideLoading()
+        if (result.fallback) {
+          Taro.showToast({ title: 'AI 暂时不可用，已使用本地搜索', icon: 'none', duration: 3000 })
+        }
+      } else {
+        const result = await fetchPublicHotelsPaged({
+          keyword: searchParams.keyword || undefined,
+          sort: sortBy,
+          order: sortOrderMap[sortBy],
+          page,
+          pageSize: PAGE_SIZE
+        })
+        const newList = reset ? result.data : [...displayedHotels, ...result.data]
+        setDisplayedHotels(newList)
+        setCurrentPage(page)
+        setHasMore(newList.length < result.total)
+      }
     } catch {
-      // 服务端不可用时保持当前数据
+      Taro.hideLoading()
     } finally {
       setLoading(false)
     }
-  }, [sortBy, searchParams, displayedHotels, loading])
+  }, [sortBy, searchParams, displayedHotels, loading, isAiMode, aiQueryParam])
 
   // 排序或搜索条件变化时重新加载
   useEffect(() => {
@@ -104,17 +122,30 @@ const ListPage = () => {
 
   return (
     <View className='list-page'>
-      <View className='sort-tabs'>
-        {SORT_OPTIONS.map((option) => (
-          <View
-            key={option.key}
-            className={`sort-tab ${sortBy === option.key ? 'sort-tab-active' : ''}`}
-            onClick={() => setSortBy(option.key)}
-          >
-            <Text>{option.label}</Text>
-          </View>
-        ))}
-      </View>
+      {isAiMode && (
+        <View className={`ai-mode-banner ${isFallback ? 'ai-mode-fallback' : ''}`}>
+          <Text className='ai-mode-label'>{isFallback ? '本地搜索' : 'AI 智能搜索'}</Text>
+          <Text className='ai-mode-query'>"{aiQueryParam}"</Text>
+        </View>
+      )}
+      {isAiMode && isFallback && (
+        <View className='ai-fallback-notice'>
+          <Text>AI 暂时无法使用，以下是本地搜索结果</Text>
+        </View>
+      )}
+      {!isAiMode && (
+        <View className='sort-tabs'>
+          {SORT_OPTIONS.map((option) => (
+            <View
+              key={option.key}
+              className={`sort-tab ${sortBy === option.key ? 'sort-tab-active' : ''}`}
+              onClick={() => setSortBy(option.key)}
+            >
+              <Text>{option.label}</Text>
+            </View>
+          ))}
+        </View>
+      )}
 
       {loading && displayedHotels.length === 0 ? (
         <View>

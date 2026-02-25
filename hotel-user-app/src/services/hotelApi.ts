@@ -58,6 +58,20 @@ export interface IPublicHotelsQuery {
   pageSize?: number
 }
 
+export interface IAiSearchResult {
+  data: IHotel[]
+  total: number
+  filters: Record<string, any>
+  fallback: boolean
+}
+
+export async function aiSearch(query: string): Promise<IAiSearchResult> {
+  return request<IAiSearchResult>('/ai/search', {
+    method: 'POST',
+    body: JSON.stringify({ query }),
+  })
+}
+
 export async function fetchPublicHotelsPaged(query: IPublicHotelsQuery = {}): Promise<IPagedResult> {
   const params = new URLSearchParams()
   if (query.keyword) params.set('keyword', query.keyword)
