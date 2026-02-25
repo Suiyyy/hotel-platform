@@ -4,23 +4,22 @@
   padding: 24px;
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
+.hotel-audit-container h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #1677ff;
+  display: inline-block;
 }
 
-.page-header h1 {
-  margin: 0;
-  font-size: 28px;
-  color: #333;
+.hotel-audit-container .ant-card {
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.03);
+  animation: adminFadeIn 0.4s ease-out both;
 }
 
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  font-size: 16px;
-  color: #666;
+/* 表格行 hover */
+.hotel-audit-container .ant-table-tbody > tr {
+  transition: background-color 0.2s ease;
 }

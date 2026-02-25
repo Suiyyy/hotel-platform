@@ -1,4 +1,29 @@
-/* 交给 Ant Design 管理全局样式，仅保留 App 容器最小高度 */
+/* 全局入场动画 */
+@keyframes adminFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .App {
   min-height: 100vh;
+}
+
+/* Content 区域淡入 */
+.admin-content-enter {
+  animation: adminFadeIn 0.35s ease-out;
+}
+
+/* 统一页面标题 */
+.admin-page-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #1677ff;
+  display: inline-block;
+}
+
+/* 通用卡片入场 */
+.admin-card-enter {
+  animation: adminFadeIn 0.4s ease-out both;
 }

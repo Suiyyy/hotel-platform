@@ -4,19 +4,34 @@
   padding: 12px;
 }
 
+// 收藏卡片
 .fav-card {
   display: flex;
   background-color: var(--bg-card);
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
   margin-bottom: 12px;
-  box-shadow: 0 1px 4px var(--shadow-color);
+  box-shadow: 0 2px 8px var(--shadow-color);
+  animation: fadeInUp 0.4s ease-out both;
+  transition: transform 0.15s ease;
+}
+
+.fav-card:active {
+  transform: scale(0.98);
+}
+
+// staggered 入场
+@for $i from 1 through 10 {
+  .fav-card:nth-child(#{$i}) {
+    animation-delay: #{$i * 0.05}s;
+  }
 }
 
 .fav-image {
   width: 120px;
   height: 100px;
   flex-shrink: 0;
+  border-radius: 12px 0 0 12px;
 }
 
 .fav-info {
@@ -25,18 +40,25 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  min-width: 0;
 }
 
 .fav-name {
   font-size: 15px;
   font-weight: 600;
   color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .fav-address {
   font-size: 12px;
   color: var(--text-hint);
   margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .fav-bottom {
@@ -49,6 +71,7 @@
 .fav-rating {
   font-size: 13px;
   color: var(--accent-color);
+  font-weight: 600;
 }
 
 .fav-price {
@@ -59,6 +82,7 @@
 .fav-price-symbol {
   font-size: 12px;
   color: var(--price-color);
+  font-weight: 600;
 }
 
 .fav-price-value {
@@ -72,17 +96,27 @@
   color: var(--text-hint);
 }
 
+// 空状态
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding-top: 120px;
+  animation: fadeInUp 0.5s ease-out both;
+}
+
+.empty-icon {
+  font-size: 56px;
+  display: block;
+  margin-bottom: 16px;
+  opacity: 0.5;
 }
 
 .empty-text {
   font-size: 16px;
   color: var(--text-hint);
+  font-weight: 500;
 }
 
 .empty-hint {

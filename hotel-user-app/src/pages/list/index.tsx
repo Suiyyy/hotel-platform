@@ -116,7 +116,20 @@ const ListPage = () => {
         ))}
       </View>
 
-      {displayedHotels.length > 0 ? (
+      {loading && displayedHotels.length === 0 ? (
+        <View>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <View className='skeleton-card' key={`sk-${i}`}>
+              <View className='skeleton-image skeleton-block' />
+              <View className='skeleton-info'>
+                <View className='skeleton-title skeleton-block' />
+                <View className='skeleton-line skeleton-block' />
+                <View className='skeleton-line-short skeleton-block' />
+              </View>
+            </View>
+          ))}
+        </View>
+      ) : displayedHotels.length > 0 ? (
         <VirtualList
           items={displayedHotels}
           itemHeight={ITEM_HEIGHT}
@@ -127,12 +140,16 @@ const ListPage = () => {
         />
       ) : (
         <View className='empty-state'>
-          <Text>{loading ? '加载中...' : '暂无符合条件的酒店'}</Text>
+          <Text className='empty-icon'>🏨</Text>
+          <Text>暂无符合条件的酒店</Text>
         </View>
       )}
 
       {loading && displayedHotels.length > 0 && (
-        <View className='loading-more'><Text>加载更多...</Text></View>
+        <View className='loading-more'>
+          <Text className='loading-spinner' />
+          <Text>加载更多...</Text>
+        </View>
       )}
       {!hasMore && displayedHotels.length > 0 && (
         <View className='no-more'><Text>没有更多了</Text></View>
