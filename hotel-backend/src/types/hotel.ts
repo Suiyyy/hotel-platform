@@ -26,6 +26,7 @@ export interface IHotel {
   isOnline: boolean
   createTime: string
   updateTime: string
+  merchantId?: string
 }
 
 export type IHotelCreate = Omit<IHotel, 'id' | 'createTime' | 'updateTime' | 'status' | 'isOnline' | 'rejectReason'>
@@ -37,6 +38,16 @@ export interface IUser {
   role: 'admin' | 'user'
 }
 
+export interface IUserDatabase {
+  users: IUser[]
+}
+
 export interface IHotelDatabase {
   hotels: IHotel[]
+}
+
+export interface IAuthPayload {
+  userId: string
+  username: string
+  role: 'admin' | 'user'
 }
