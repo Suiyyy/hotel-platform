@@ -44,7 +44,7 @@ const AdminLayout = () => {
         />
       </Sider>
       <Layout>
-        <Header style={{ background: '#fff', padding: '0 24px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+        <Header style={{ background: isDark ? '#141414' : '#fff', padding: '0 24px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
           <Switch
             checkedChildren={<BulbOutlined />}
             unCheckedChildren={<BulbOutlined />}
