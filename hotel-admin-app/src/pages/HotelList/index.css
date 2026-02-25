@@ -1,0 +1,18 @@
+.hotel-list-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.hotel-list-container .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.hotel-list-container .user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
