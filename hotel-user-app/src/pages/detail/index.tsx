@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { View, Text, Image, ScrollView, Button, Swiper, SwiperItem } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useHotelStore } from '../../store/hotelContext'
+import { useFavorites } from '../../store/favoritesContext'
 import { onPriceUpdate } from '../../services/wsClient'
 import type { IHotel, IRoomType } from '../../types/hotel'
 import './index.scss'
@@ -35,6 +36,7 @@ const DetailPage = () => {
   const [currentSlide, setCurrentSlide] = useState(0)
   const router = Taro.getCurrentInstance().router
   const { getHotelById } = useHotelStore()
+  const { isFavorite, toggleFavorite } = useFavorites()
 
   useEffect(() => {
     const hotelId = router?.params?.id
@@ -161,6 +163,13 @@ const DetailPage = () => {
       </ScrollView>
 
       <View className='detail-footer'>
+        <View
+          className={`footer-fav ${isFavorite(hotel.id) ? 'footer-fav-active' : ''}`}
+          onClick={() => toggleFavorite(hotel.id)}
+        >
+          <Text className='footer-fav-icon'>{isFavorite(hotel.id) ? '♥' : '♡'}</Text>
+          <Text className='footer-fav-text'>收藏</Text>
+        </View>
         <View className='footer-price'>
           <Text className='footer-price-label'>¥</Text>
           <Text className='footer-price-value'>{lowestPrice}</Text>

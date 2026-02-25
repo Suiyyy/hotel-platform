@@ -1,6 +1,7 @@
 import { PropsWithChildren } from 'react'
 import { useLaunch } from '@tarojs/taro'
 import { HotelProvider } from './store/hotelContext'
+import { FavoritesProvider } from './store/favoritesContext'
 
 import './app.scss'
 
@@ -9,7 +10,11 @@ function App({ children }: PropsWithChildren<any>) {
     console.log('App launched.')
   })
 
-  return <HotelProvider>{children}</HotelProvider>
+  return (
+    <HotelProvider>
+      <FavoritesProvider>{children}</FavoritesProvider>
+    </HotelProvider>
+  )
 }
 
 export default App

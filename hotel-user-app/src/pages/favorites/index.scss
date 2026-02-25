@@ -1,0 +1,92 @@
+.favorites-page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 12px;
+}
+
+.fav-card {
+  display: flex;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.fav-image {
+  width: 120px;
+  height: 100px;
+  flex-shrink: 0;
+}
+
+.fav-info {
+  flex: 1;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.fav-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+.fav-address {
+  font-size: 12px;
+  color: #999;
+  margin-top: 4px;
+}
+
+.fav-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.fav-rating {
+  font-size: 13px;
+  color: #0066cc;
+}
+
+.fav-price {
+  display: flex;
+  align-items: baseline;
+}
+
+.fav-price-symbol {
+  font-size: 12px;
+  color: #ff6600;
+}
+
+.fav-price-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ff6600;
+}
+
+.fav-price-unit {
+  font-size: 11px;
+  color: #999;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 120px;
+}
+
+.empty-text {
+  font-size: 16px;
+  color: #999;
+}
+
+.empty-hint {
+  font-size: 13px;
+  color: #ccc;
+  margin-top: 8px;
+}

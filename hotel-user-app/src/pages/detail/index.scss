@@ -228,3 +228,25 @@
 .footer-btn:active {
   background-color: #0052a3;
 }
+
+.footer-fav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.footer-fav-icon {
+  font-size: 22px;
+  color: #ccc;
+}
+
+.footer-fav-active .footer-fav-icon {
+  color: #ff4444;
+}
+
+.footer-fav-text {
+  font-size: 11px;
+  color: #999;
+  margin-top: 2px;
+}
