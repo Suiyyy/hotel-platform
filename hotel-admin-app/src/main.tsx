@@ -7,6 +7,7 @@ import './index.css'
 import App from './App'
 import { HotelProvider } from './store/hotelContext'
 import { ThemeProvider, useTheme } from './store/themeContext'
+import ErrorBoundary from './components/ErrorBoundary'
 
 const ThemedApp = () => {
   const { isDark } = useTheme()
@@ -19,7 +20,9 @@ const ThemedApp = () => {
       }}
     >
       <BrowserRouter>
-        <App />
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>
       </BrowserRouter>
     </ConfigProvider>
   )

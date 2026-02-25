@@ -4,19 +4,22 @@ import { HotelProvider } from './store/hotelContext'
 import { FavoritesProvider } from './store/favoritesContext'
 import { HistoryProvider } from './store/historyContext'
 import { ThemeProvider } from './store/themeContext'
+import ErrorBoundary from './components/ErrorBoundary'
 
 import './app.scss'
 
 function App({ children }: PropsWithChildren<any>) {
   useLaunch(() => {
-    console.log('App launched.')
+    // App initialized
   })
 
   return (
     <HotelProvider>
       <FavoritesProvider>
         <HistoryProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider>
+            <ErrorBoundary>{children}</ErrorBoundary>
+          </ThemeProvider>
         </HistoryProvider>
       </FavoritesProvider>
     </HotelProvider>
