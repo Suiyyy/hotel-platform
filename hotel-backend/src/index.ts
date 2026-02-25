@@ -150,6 +150,7 @@ app.post('/hotels', validateHotelCreate, async (req: Request, res: Response, nex
     const newHotel: IHotel = {
       ...payload as IHotel,
       id: Date.now().toString(),
+      merchantId: req.user?.userId,
       createTime: now,
       updateTime: now,
       status: 'pending',
@@ -184,6 +185,50 @@ app.patch('/hotels/:id', validateHotelPatch, async (req: Request<{ id: string }>
       broadcastPriceUpdate(id, updated.price)
     }
 
+    res.json(updated)
+  } catch (e) {
+    next(e)
+  }
+})
+
+// ==================== Soft Delete & Restore ====================
+
+app.delete('/hotels/:id', async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params
+    const hotels = await getAllHotels()
+    const index = hotels.findIndex((h: IHotel) => h.id === id)
+    if (index === -1) {
+      res.status(404).json({ message: 'not_found' })
+      return
+    }
+    const updated: IHotel = { ...hotels[index], isOnline: false, updateTime: new Date().toISOString() }
+    const nextHotels = hotels.slice()
+    nextHotels[index] = updated
+    await setAllHotels(nextHotels)
+    res.json(updated)
+  } catch (e) {
+    next(e)
+  }
+})
+
+app.patch('/hotels/:id/restore', async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params
+    const hotels = await getAllHotels()
+    const index = hotels.findIndex((h: IHotel) => h.id === id)
+    if (index === -1) {
+      res.status(404).json({ message: 'not_found' })
+      return
+    }
+    if (hotels[index].status !== 'approved') {
+      res.status(400).json({ message: '仅已通过审核的酒店可以恢复上线' })
+      return
+    }
+    const updated: IHotel = { ...hotels[index], isOnline: true, updateTime: new Date().toISOString() }
+    const nextHotels = hotels.slice()
+    nextHotels[index] = updated
+    await setAllHotels(nextHotels)
     res.json(updated)
   } catch (e) {
     next(e)
