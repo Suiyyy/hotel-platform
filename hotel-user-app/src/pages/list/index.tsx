@@ -3,6 +3,7 @@ import { View, Text, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useHotelStore } from '../../store/hotelContext'
 import { fetchPublicHotelsPaged } from '../../services/hotelApi'
+import { onPriceUpdate } from '../../services/wsClient'
 import VirtualList from '../../components/VirtualList'
 import type { IHotel } from '../../types/hotel'
 import './index.scss'
@@ -68,6 +69,16 @@ const ListPage = () => {
   useEffect(() => {
     loadHotels(1, true)
   }, [sortBy, searchParams])
+
+  // WebSocket 实时价格更新
+  useEffect(() => {
+    const unsubscribe = onPriceUpdate((hotelId, newPrice) => {
+      setDisplayedHotels(prev =>
+        prev.map(h => h.id === hotelId ? { ...h, price: newPrice } : h)
+      )
+    })
+    return unsubscribe
+  }, [])
 
   const handleHotelClick = (hotelId: string) => {
     Taro.navigateTo({ url: `/pages/detail/index?id=${hotelId}` })

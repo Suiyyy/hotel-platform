@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { View, Text, Image, ScrollView, Button, Swiper, SwiperItem } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useHotelStore } from '../../store/hotelContext'
+import { onPriceUpdate } from '../../services/wsClient'
 import type { IHotel, IRoomType } from '../../types/hotel'
 import './index.scss'
 
@@ -42,6 +43,14 @@ const DetailPage = () => {
       if (hotelData) setHotel(hotelData)
     }
   }, [router, getHotelById])
+
+  // WebSocket 实时价格更新
+  useEffect(() => {
+    const unsubscribe = onPriceUpdate((hotelId, newPrice) => {
+      setHotel(prev => prev && prev.id === hotelId ? { ...prev, price: newPrice } : prev)
+    })
+    return unsubscribe
+  }, [])
 
   const images = useMemo(
     () => hotel ? getHotelImages(hotel.imageUrl, hotel.id) : [],
