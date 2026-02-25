@@ -1,53 +1,66 @@
-import { useState } from 'react';
-import { Form, Input, Button, Card, message, Tabs } from 'antd';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
-import { useHotelStore } from '../../store/hotelContext';
-import './index.css';
+import { useState } from 'react'
+import { Form, Input, Button, Card, message, Tabs } from 'antd'
+import { UserOutlined, LockOutlined } from '@ant-design/icons'
+import { useNavigate } from 'react-router-dom'
+import { useHotelStore } from '../../store/hotelContext'
+import type { IUser } from '../../types/hotel'
+import './index.css'
+
+interface ILoginFormValues {
+  username: string
+  password: string
+}
+
+interface IRegisterFormValues {
+  username: string
+  password: string
+  confirmPassword: string
+  role: IUser['role']
+}
 
 const LoginPage = () => {
-  const [activeTab, setActiveTab] = useState('login');
-  const [loading, setLoading] = useState(false);
-  const { login, register } = useHotelStore();
-  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('login')
+  const [loading, setLoading] = useState(false)
+  const { login, register } = useHotelStore()
+  const navigate = useNavigate()
 
-  const handleLogin = async (values) => {
-    setLoading(true);
+  const handleLogin = async (values: ILoginFormValues) => {
+    setLoading(true)
     try {
-      const result = login(values.username, values.password);
+      const result = login(values.username, values.password)
       if (result.success) {
-        message.success('登录成功');
-        if (result.user.role === 'admin') {
-          navigate('/audit');
+        message.success('登录成功')
+        if (result.user?.role === 'admin') {
+          navigate('/audit')
         } else {
-          navigate('/add-hotel');
+          navigate('/add-hotel')
         }
       } else {
-        message.error(result.message);
+        message.error(result.message)
       }
-    } catch (error) {
-      message.error('登录失败');
+    } catch {
+      message.error('登录失败')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  const handleRegister = async (values) => {
-    setLoading(true);
+  const handleRegister = async (values: IRegisterFormValues) => {
+    setLoading(true)
     try {
-      const result = register(values.username, values.password, values.role);
+      const result = register(values.username, values.password, values.role)
       if (result.success) {
-        message.success('注册成功，请登录');
-        setActiveTab('login');
+        message.success('注册成功，请登录')
+        setActiveTab('login')
       } else {
-        message.error(result.message);
+        message.error(result.message)
       }
-    } catch (error) {
-      message.error('注册失败');
+    } catch {
+      message.error('注册失败')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const items = [
     {
@@ -65,9 +78,9 @@ const LoginPage = () => {
               name="username"
               rules={[{ required: true, message: '请输入用户名' }]}
             >
-              <Input 
-                prefix={<UserOutlined />} 
-                placeholder="用户名" 
+              <Input
+                prefix={<UserOutlined />}
+                placeholder="用户名"
               />
             </Form.Item>
 
@@ -82,9 +95,9 @@ const LoginPage = () => {
             </Form.Item>
 
             <Form.Item>
-              <Button 
-                type="primary" 
-                htmlType="submit" 
+              <Button
+                type="primary"
+                htmlType="submit"
                 loading={loading}
                 block
                 size="large"
@@ -119,9 +132,9 @@ const LoginPage = () => {
                 { min: 3, message: '用户名至少3个字符' }
               ]}
             >
-              <Input 
-                prefix={<UserOutlined />} 
-                placeholder="用户名" 
+              <Input
+                prefix={<UserOutlined />}
+                placeholder="用户名"
               />
             </Form.Item>
 
@@ -146,9 +159,9 @@ const LoginPage = () => {
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     if (!value || getFieldValue('password') === value) {
-                      return Promise.resolve();
+                      return Promise.resolve()
                     }
-                    return Promise.reject(new Error('两次输入的密码不一致'));
+                    return Promise.reject(new Error('两次输入的密码不一致'))
                   },
                 }),
               ]}
@@ -168,9 +181,9 @@ const LoginPage = () => {
             </Form.Item>
 
             <Form.Item>
-              <Button 
-                type="primary" 
-                htmlType="submit" 
+              <Button
+                type="primary"
+                htmlType="submit"
                 loading={loading}
                 block
                 size="large"
@@ -182,7 +195,7 @@ const LoginPage = () => {
         </div>
       ),
     },
-  ];
+  ]
 
   return (
     <div className="login-container">
@@ -190,7 +203,7 @@ const LoginPage = () => {
         <Tabs activeKey={activeTab} onChange={setActiveTab} centered items={items} />
       </Card>
     </div>
-  );
-};
+  )
+}
 
-export default LoginPage;
+export default LoginPage

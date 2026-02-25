@@ -1,82 +1,84 @@
-import { useState } from 'react';
-import { Table, Button, Tag, Modal, Input, message, Space, Card, Popconfirm, Image } from 'antd';
-import { CheckOutlined, CloseOutlined, PoweroffOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
-import { useHotelStore } from '../../store/hotelContext';
-import './index.css';
+import { useState } from 'react'
+import { Table, Button, Tag, Modal, Input, message, Space, Card, Popconfirm, Image } from 'antd'
+import type { ColumnsType } from 'antd/es/table'
+import { CheckOutlined, CloseOutlined, PoweroffOutlined } from '@ant-design/icons'
+import { useNavigate } from 'react-router-dom'
+import { useHotelStore } from '../../store/hotelContext'
+import type { IHotel } from '../../types/hotel'
+import './index.css'
 
-const { TextArea } = Input;
+const { TextArea } = Input
 
 const HotelAuditPage = () => {
-  const [rejectModalVisible, setRejectModalVisible] = useState(false);
-  const [currentHotel, setCurrentHotel] = useState(null);
-  const [rejectReason, setRejectReason] = useState('');
-  const { hotels, updateHotelStatus, toggleHotelOnline, currentUser, logout } = useHotelStore();
-  const navigate = useNavigate();
+  const [rejectModalVisible, setRejectModalVisible] = useState(false)
+  const [currentHotel, setCurrentHotel] = useState<IHotel | null>(null)
+  const [rejectReason, setRejectReason] = useState('')
+  const { hotels, updateHotelStatus, toggleHotelOnline, currentUser, logout } = useHotelStore()
+  const navigate = useNavigate()
 
-  const getStatusTag = (status) => {
+  const getStatusTag = (status: IHotel['status']) => {
     switch (status) {
       case 'pending':
-        return <Tag color="gold">审核中</Tag>;
+        return <Tag color="gold">审核中</Tag>
       case 'approved':
-        return <Tag color="green">已通过</Tag>;
+        return <Tag color="green">已通过</Tag>
       case 'rejected':
-        return <Tag color="red">已拒绝</Tag>;
+        return <Tag color="red">已拒绝</Tag>
       default:
-        return <Tag>未知</Tag>;
+        return <Tag>未知</Tag>
     }
-  };
+  }
 
-  const handleApprove = async (hotelId) => {
+  const handleApprove = async (hotelId: string) => {
     try {
-      await updateHotelStatus(hotelId, 'approved');
-      message.success('审核通过');
+      await updateHotelStatus(hotelId, 'approved')
+      message.success('审核通过')
     } catch {
-      message.error('操作失败');
+      message.error('操作失败')
     }
-  };
+  }
 
-  const handleRejectClick = (hotel) => {
-    setCurrentHotel(hotel);
-    setRejectReason('');
-    setRejectModalVisible(true);
-  };
+  const handleRejectClick = (hotel: IHotel) => {
+    setCurrentHotel(hotel)
+    setRejectReason('')
+    setRejectModalVisible(true)
+  }
 
   const handleReject = async () => {
     if (!rejectReason.trim()) {
-      message.error('请输入拒绝原因');
-      return;
+      message.error('请输入拒绝原因')
+      return
     }
     try {
-      await updateHotelStatus(currentHotel.id, 'rejected', rejectReason);
-      setRejectModalVisible(false);
-      message.success('已拒绝');
+      await updateHotelStatus(currentHotel!.id, 'rejected', rejectReason)
+      setRejectModalVisible(false)
+      message.success('已拒绝')
     } catch {
-      message.error('操作失败');
+      message.error('操作失败')
     }
-  };
+  }
 
-  const handleToggleOnline = async (hotelId) => {
+  const handleToggleOnline = async (hotelId: string) => {
     try {
-      await toggleHotelOnline(hotelId);
-      message.success('状态已更新');
+      await toggleHotelOnline(hotelId)
+      message.success('状态已更新')
     } catch {
-      message.error('操作失败');
+      message.error('操作失败')
     }
-  };
+  }
 
   const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
+    logout()
+    navigate('/')
+  }
 
-  const columns = [
+  const columns: ColumnsType<IHotel> = [
     {
       title: '酒店图片',
       dataIndex: 'imageUrl',
       key: 'imageUrl',
       width: 120,
-      render: (imageUrl) => (
+      render: (imageUrl: string) => (
         <Image
           width={80}
           height={60}
@@ -102,28 +104,28 @@ const HotelAuditPage = () => {
       dataIndex: 'star',
       key: 'star',
       width: 80,
-      render: (star) => `${star}星级`,
+      render: (star: number) => `${star}星级`,
     },
     {
       title: '价格',
       dataIndex: 'price',
       key: 'price',
       width: 100,
-      render: (price) => `¥${price}`,
+      render: (price: number) => `¥${price}`,
     },
     {
       title: '审核状态',
       dataIndex: 'status',
       key: 'status',
       width: 100,
-      render: (status) => getStatusTag(status),
+      render: (status: IHotel['status']) => getStatusTag(status),
     },
     {
       title: '上线状态',
       dataIndex: 'isOnline',
       key: 'isOnline',
       width: 100,
-      render: (isOnline, record) => (
+      render: (isOnline: boolean) => (
         <Tag color={isOnline ? 'green' : 'default'}>
           {isOnline ? '已上线' : '已下线'}
         </Tag>
@@ -179,7 +181,7 @@ const HotelAuditPage = () => {
         </Space>
       ),
     },
-  ];
+  ]
 
   return (
     <div className="hotel-audit-container">
@@ -221,7 +223,7 @@ const HotelAuditPage = () => {
         />
       </Modal>
     </div>
-  );
-};
+  )
+}
 
-export default HotelAuditPage;
+export default HotelAuditPage

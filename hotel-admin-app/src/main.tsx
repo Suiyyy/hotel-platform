@@ -7,7 +7,7 @@ import './index.css'
 import App from './App'
 import { HotelProvider } from './store/hotelContext'
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <HotelProvider>
       <ConfigProvider locale={zhCN}>

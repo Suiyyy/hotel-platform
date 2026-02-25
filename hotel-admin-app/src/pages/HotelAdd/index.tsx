@@ -1,23 +1,37 @@
-import { useState } from 'react';
-import { Form, Input, InputNumber, Select, Button, Card, message, Space, Divider, Row, Col } from 'antd';
-import { useNavigate } from 'react-router-dom';
-import { useHotelStore } from '../../store/hotelContext';
-import './index.css';
+import { useState } from 'react'
+import { Form, Input, InputNumber, Select, Button, Card, message, Space, Divider, Row, Col } from 'antd'
+import { useNavigate } from 'react-router-dom'
+import { useHotelStore } from '../../store/hotelContext'
+import type { IRoomType } from '../../types/hotel'
+import './index.css'
 
-const { Option } = Select;
-const { TextArea } = Input;
+const { Option } = Select
+const { TextArea } = Input
+
+interface IHotelFormValues {
+  nameCn: string
+  nameEn?: string
+  address: string
+  star: number
+  price: number
+  openDate: string
+  phone: string
+  imageUrl: string
+  description?: string
+  facilities?: string
+}
 
 const HotelAddPage = () => {
-  const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
-  const [roomTypes, setRoomTypes] = useState([
+  const [form] = Form.useForm()
+  const [loading, setLoading] = useState(false)
+  const [roomTypes, setRoomTypes] = useState<IRoomType[]>([
     { id: '1', name: '', price: 0, area: 0, bedType: '' }
-  ]);
-  const { addHotel, currentUser, logout } = useHotelStore();
-  const navigate = useNavigate();
+  ])
+  const { addHotel, currentUser, logout } = useHotelStore()
+  const navigate = useNavigate()
 
-  const handleSubmit = async (values) => {
-    setLoading(true);
+  const handleSubmit = async (values: IHotelFormValues) => {
+    setLoading(true)
     try {
       const hotelData = {
         ...values,
@@ -25,42 +39,42 @@ const HotelAddPage = () => {
         rating: 4.5,
         distance: 2.0,
         facilities: values.facilities ? values.facilities.split(',').map(f => f.trim()) : []
-      };
-      
-      await addHotel(hotelData);
-      message.success('酒店信息录入成功，等待审核');
-      form.resetFields();
-      setRoomTypes([{ id: '1', name: '', price: 0, area: 0, bedType: '' }]);
-    } catch (error) {
-      message.error('录入失败');
+      }
+
+      await addHotel(hotelData)
+      message.success('酒店信息录入成功，等待审核')
+      form.resetFields()
+      setRoomTypes([{ id: '1', name: '', price: 0, area: 0, bedType: '' }])
+    } catch {
+      message.error('录入失败')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const addRoomType = () => {
     setRoomTypes([
       ...roomTypes,
       { id: Date.now().toString(), name: '', price: 0, area: 0, bedType: '' }
-    ]);
-  };
+    ])
+  }
 
-  const removeRoomType = (id) => {
+  const removeRoomType = (id: string) => {
     if (roomTypes.length > 1) {
-      setRoomTypes(roomTypes.filter(r => r.id !== id));
+      setRoomTypes(roomTypes.filter(r => r.id !== id))
     }
-  };
+  }
 
-  const updateRoomType = (id, field, value) => {
-    setRoomTypes(roomTypes.map(r => 
+  const updateRoomType = (id: string, field: keyof IRoomType, value: string | number) => {
+    setRoomTypes(roomTypes.map(r =>
       r.id === id ? { ...r, [field]: value } : r
-    ));
-  };
+    ))
+  }
 
   const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
+    logout()
+    navigate('/')
+  }
 
   return (
     <div className="hotel-add-container">
@@ -190,7 +204,7 @@ const HotelAddPage = () => {
 
           <Divider>房型管理</Divider>
 
-          {roomTypes.map((room, index) => (
+          {roomTypes.map((room) => (
             <div key={room.id} className="room-type-form">
               <Row gutter={16} align="middle">
                 <Col span={6}>
@@ -205,7 +219,7 @@ const HotelAddPage = () => {
                     placeholder="价格"
                     min={0}
                     value={room.price}
-                    onChange={(value) => updateRoomType(room.id, 'price', value)}
+                    onChange={(value) => updateRoomType(room.id, 'price', value ?? 0)}
                     style={{ width: '100%' }}
                     addonAfter="元"
                   />
@@ -215,7 +229,7 @@ const HotelAddPage = () => {
                     placeholder="面积"
                     min={0}
                     value={room.area}
-                    onChange={(value) => updateRoomType(room.id, 'area', value)}
+                    onChange={(value) => updateRoomType(room.id, 'area', value ?? 0)}
                     style={{ width: '100%' }}
                     addonAfter="㎡"
                   />
@@ -259,7 +273,7 @@ const HotelAddPage = () => {
         </Form>
       </Card>
     </div>
-  );
-};
+  )
+}
 
-export default HotelAddPage;
+export default HotelAddPage
