@@ -42,3 +42,30 @@ async function request<T = any>(path: string, options: RequestOptions = {}): Pro
 export async function fetchPublicHotels(): Promise<IHotel[]> {
   return request<IHotel[]>('/hotels/public')
 }
+
+export interface IPagedResult {
+  data: IHotel[]
+  total: number
+  page: number
+  pageSize: number
+}
+
+export interface IPublicHotelsQuery {
+  keyword?: string
+  sort?: 'price' | 'rating' | 'distance' | 'star'
+  order?: 'asc' | 'desc'
+  page?: number
+  pageSize?: number
+}
+
+export async function fetchPublicHotelsPaged(query: IPublicHotelsQuery = {}): Promise<IPagedResult> {
+  const params = new URLSearchParams()
+  if (query.keyword) params.set('keyword', query.keyword)
+  if (query.sort) params.set('sort', query.sort)
+  if (query.order) params.set('order', query.order)
+  if (query.page) params.set('page', String(query.page))
+  if (query.pageSize) params.set('pageSize', String(query.pageSize))
+
+  const qs = params.toString()
+  return request<IPagedResult>(`/hotels/public${qs ? `?${qs}` : ''}`)
+}

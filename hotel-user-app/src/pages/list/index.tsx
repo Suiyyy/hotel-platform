@@ -2,13 +2,14 @@ import { useState, useEffect, useCallback } from 'react'
 import { View, Text, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useHotelStore } from '../../store/hotelContext'
+import { fetchPublicHotelsPaged } from '../../services/hotelApi'
 import VirtualList from '../../components/VirtualList'
 import type { IHotel } from '../../types/hotel'
 import './index.scss'
 
 type SortKey = 'price' | 'rating' | 'distance'
 
-const PAGE_SIZE = 5
+const PAGE_SIZE = 10
 const ITEM_HEIGHT = 140
 
 const sortOptions: { key: SortKey; label: string }[] = [
@@ -17,18 +18,10 @@ const sortOptions: { key: SortKey; label: string }[] = [
   { key: 'distance', label: '距离' }
 ]
 
-const sortHotels = (hotels: IHotel[], sortType: SortKey): IHotel[] => {
-  const sorted = [...hotels]
-  switch (sortType) {
-    case 'price':
-      return sorted.sort((a, b) => a.price - b.price)
-    case 'rating':
-      return sorted.sort((a, b) => b.rating - a.rating)
-    case 'distance':
-      return sorted.sort((a, b) => a.distance - b.distance)
-    default:
-      return sorted
-  }
+const sortOrderMap: Record<SortKey, 'asc' | 'desc'> = {
+  price: 'asc',
+  rating: 'desc',
+  distance: 'asc'
 }
 
 const renderStars = (star: number) => {
@@ -46,32 +39,34 @@ const ListPage = () => {
   const [displayedHotels, setDisplayedHotels] = useState<IHotel[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
-  const { getApprovedOnlineHotels, searchParams } = useHotelStore()
+  const [loading, setLoading] = useState(false)
+  const { searchParams } = useHotelStore()
 
-  const loadHotels = useCallback((isRefresh = false) => {
-    const page = isRefresh ? 1 : currentPage
-    let hotels = getApprovedOnlineHotels()
-
-    if (searchParams.keyword) {
-      const keyword = searchParams.keyword.toLowerCase()
-      hotels = hotels.filter(h =>
-        h.nameCn.toLowerCase().includes(keyword) ||
-        h.address.toLowerCase().includes(keyword)
-      )
+  const loadHotels = useCallback(async (page: number, reset = false) => {
+    if (loading) return
+    setLoading(true)
+    try {
+      const result = await fetchPublicHotelsPaged({
+        keyword: searchParams.keyword || undefined,
+        sort: sortBy,
+        order: sortOrderMap[sortBy],
+        page,
+        pageSize: PAGE_SIZE
+      })
+      const newList = reset ? result.data : [...displayedHotels, ...result.data]
+      setDisplayedHotels(newList)
+      setCurrentPage(page)
+      setHasMore(newList.length < result.total)
+    } catch {
+      // 服务端不可用时保持当前数据
+    } finally {
+      setLoading(false)
     }
+  }, [sortBy, searchParams, displayedHotels, loading])
 
-    hotels = sortHotels(hotels, sortBy)
-
-    const endIndex = page * PAGE_SIZE
-    const newDisplayedHotels = hotels.slice(0, endIndex)
-
-    setDisplayedHotels(newDisplayedHotels)
-    setCurrentPage(page)
-    setHasMore(endIndex < hotels.length)
-  }, [currentPage, sortBy, searchParams, getApprovedOnlineHotels])
-
+  // 排序或搜索条件变化时重新加载
   useEffect(() => {
-    loadHotels(true)
+    loadHotels(1, true)
   }, [sortBy, searchParams])
 
   const handleHotelClick = (hotelId: string) => {
@@ -79,16 +74,10 @@ const ListPage = () => {
   }
 
   const handleScrollToLower = () => {
-    if (hasMore) {
-      setCurrentPage(prev => prev + 1)
+    if (hasMore && !loading) {
+      loadHotels(currentPage + 1, false)
     }
   }
-
-  useEffect(() => {
-    if (currentPage > 1) {
-      loadHotels(false)
-    }
-  }, [currentPage])
 
   const renderHotelCard = useCallback((hotel: IHotel) => (
     <View
@@ -113,9 +102,8 @@ const ListPage = () => {
     </View>
   ), [])
 
-  // Get window height for virtual list container
   const systemInfo = Taro.getSystemInfoSync()
-  const containerHeight = systemInfo.windowHeight - 50 // subtract sort tabs height
+  const containerHeight = systemInfo.windowHeight - 50
 
   return (
     <View className='list-page'>
@@ -141,10 +129,12 @@ const ListPage = () => {
           overscan={3}
         />
       ) : (
-        <View className='empty-state'><Text>暂无符合条件的酒店</Text></View>
+        <View className='empty-state'>
+          <Text>{loading ? '加载中...' : '暂无符合条件的酒店'}</Text>
+        </View>
       )}
 
-      {hasMore && displayedHotels.length > 0 && (
+      {loading && displayedHotels.length > 0 && (
         <View className='loading-more'><Text>加载更多...</Text></View>
       )}
       {!hasMore && displayedHotels.length > 0 && (
