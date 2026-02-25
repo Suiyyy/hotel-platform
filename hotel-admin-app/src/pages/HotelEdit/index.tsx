@@ -1,13 +1,21 @@
 import { useState, useEffect } from 'react'
-import { Form, Input, InputNumber, Select, Button, Card, message, Space, Divider, Row, Col, Spin } from 'antd'
+import { Form, Input, InputNumber, Select, Button, Card, message, Space, Divider, Row, Col, Spin, Upload, Checkbox } from 'antd'
+import { PlusOutlined } from '@ant-design/icons'
 import { useNavigate, useParams } from 'react-router-dom'
-import { patchHotel } from '../../services/hotelApi'
+import { patchHotel, getBaseUrl, aiPolish } from '../../services/hotelApi'
 import { useHotelStore } from '../../store/hotelContext'
 import type { IRoomType } from '../../types/hotel'
+import type { UploadFile } from 'antd/es/upload'
 import '../HotelAdd/index.css'
 
 const { Option } = Select
 const { TextArea } = Input
+
+const FACILITY_OPTIONS = [
+  '免费WiFi', '停车场', '健身房', '游泳池', '餐厅',
+  '商务中心', '洗衣服务', '行李寄存', '接机服务', '儿童乐园',
+  'SPA', '私人沙滩', '会议室', '无烟楼层', '24小时前台'
+]
 
 interface IHotelFormValues {
   nameCn: string
@@ -19,13 +27,15 @@ interface IHotelFormValues {
   phone: string
   imageUrl: string
   description?: string
-  facilities?: string
+  facilities?: string[]
 }
 
 const HotelEditPage = () => {
   const { id } = useParams<{ id: string }>()
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
+  const [polishing, setPolishing] = useState(false)
+  const [fileList, setFileList] = useState<UploadFile[]>([])
   const [roomTypes, setRoomTypes] = useState<IRoomType[]>([])
   const { hotels } = useHotelStore()
   const navigate = useNavigate()
@@ -44,9 +54,22 @@ const HotelEditPage = () => {
         phone: hotel.phone,
         imageUrl: hotel.imageUrl,
         description: hotel.description,
-        facilities: hotel.facilities?.join(', ')
+        facilities: hotel.facilities || []
       })
       setRoomTypes(hotel.roomTypes?.length ? hotel.roomTypes : [{ id: '1', name: '', price: 0, area: 0, bedType: '' }])
+
+      // 回显已有图片
+      if (hotel.imageUrl) {
+        const imgUrl = hotel.imageUrl.startsWith('http')
+          ? hotel.imageUrl
+          : `${getBaseUrl()}${hotel.imageUrl}`
+        setFileList([{
+          uid: '-1',
+          name: 'hotel-image',
+          status: 'done',
+          url: imgUrl,
+        }])
+      }
     }
   }, [hotel, form])
 
@@ -57,7 +80,7 @@ const HotelEditPage = () => {
       await patchHotel(id, {
         ...values,
         roomTypes: roomTypes.filter(r => r.name && r.price > 0),
-        facilities: values.facilities ? values.facilities.split(',').map(f => f.trim()) : []
+        facilities: values.facilities || []
       })
       message.success('酒店信息已更新')
       navigate('/my-hotels')
@@ -65,6 +88,39 @@ const HotelEditPage = () => {
       message.error('更新失败')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleUploadChange = (info: { fileList: UploadFile[] }) => {
+    setFileList(info.fileList)
+    const file = info.fileList[0]
+    if (file?.status === 'done' && file.response?.url) {
+      form.setFieldsValue({ imageUrl: file.response.url })
+    }
+    if (file?.status === 'error') {
+      message.error('图片上传失败')
+    }
+  }
+
+  const handlePolish = async () => {
+    const desc = form.getFieldValue('description')
+    if (!desc?.trim()) {
+      message.warning('请先输入酒店简介')
+      return
+    }
+    setPolishing(true)
+    try {
+      const { result, fallback } = await aiPolish(desc)
+      form.setFieldsValue({ description: result })
+      if (fallback) {
+        message.info('AI 暂时不可用，已返回原文')
+      } else {
+        message.success('润色完成')
+      }
+    } catch {
+      message.error('润色失败')
+    } finally {
+      setPolishing(false)
     }
   }
 
@@ -135,18 +191,54 @@ const HotelEditPage = () => {
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="imageUrl" label="图片链接" rules={[{ required: true, message: '请输入图片链接' }]}>
-                <Input placeholder="请输入图片链接" />
+              <Form.Item
+                name="imageUrl"
+                label="酒店图片"
+                rules={[{ required: true, message: '请上传酒店图片' }]}
+              >
+                <Input type="hidden" />
               </Form.Item>
+              <Upload
+                action={`${getBaseUrl()}/upload`}
+                name="file"
+                listType="picture-card"
+                maxCount={1}
+                fileList={fileList}
+                onChange={handleUploadChange}
+                accept="image/*"
+              >
+                {fileList.length < 1 && (
+                  <div>
+                    <PlusOutlined />
+                    <div style={{ marginTop: 8 }}>上传图片</div>
+                  </div>
+                )}
+              </Upload>
             </Col>
           </Row>
 
           <Form.Item name="description" label="酒店简介">
             <TextArea rows={4} placeholder="请输入酒店简介" />
           </Form.Item>
+          <Button
+            className="ai-polish-btn"
+            size="small"
+            loading={polishing}
+            onClick={handlePolish}
+          >
+            AI 润色
+          </Button>
 
-          <Form.Item name="facilities" label="设施服务（用逗号分隔）">
-            <Input placeholder="如：免费WiFi, 停车场, 健身房" />
+          <Form.Item
+            name="facilities"
+            label="设施服务"
+            style={{ marginTop: 16 }}
+          >
+            <Checkbox.Group className="facility-checkbox-group">
+              {FACILITY_OPTIONS.map(f => (
+                <Checkbox key={f} value={f}>{f}</Checkbox>
+              ))}
+            </Checkbox.Group>
           </Form.Item>
 
           <Divider>房型管理</Divider>

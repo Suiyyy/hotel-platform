@@ -140,6 +140,38 @@ export async function parseSearchIntent(userInput: string): Promise<IParseResult
   }
 }
 
+const POLISH_SYSTEM_PROMPT = `你是一个酒店文案润色助手。用户会给你一段酒店简介，请将其改写为更吸引人的版本。
+
+要求：
+- 保留原文的核心信息（地点、特色、设施等）
+- 语言优美流畅，突出酒店亮点
+- 控制在 50-150 字之间
+- 直接返回润色后的文本，不要包含任何额外说明`
+
+/**
+ * 调用 GLM 润色酒店简介，失败时返回原文
+ */
+export async function polishDescription(input: string): Promise<{ result: string; fallback: boolean }> {
+  try {
+    console.log('[ai] polishing description:', input)
+    const response = await withTimeout(
+      chatModel.invoke([
+        new SystemMessage(POLISH_SYSTEM_PROMPT),
+        new HumanMessage(input),
+      ]),
+      10_000
+    )
+    const text = typeof response.content === 'string'
+      ? response.content
+      : JSON.stringify(response.content)
+    console.log('[ai] polished result:', text)
+    return { result: text.trim(), fallback: false }
+  } catch (err) {
+    console.error('[ai] polish failed, returning original:', (err as Error).message)
+    return { result: input, fallback: true }
+  }
+}
+
 /**
  * 根据 AI 提取的意图过滤酒店列表
  */

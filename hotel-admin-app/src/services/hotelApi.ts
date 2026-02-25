@@ -3,7 +3,7 @@ import type { IHotel } from '../types/hotel'
 const DEFAULT_BASE_URL = 'http://localhost:3001'
 const TOKEN_KEY = 'auth_token'
 
-function getBaseUrl(): string {
+export function getBaseUrl(): string {
   return (import.meta?.env?.VITE_API_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, '')
 }
 
@@ -80,4 +80,13 @@ export async function deleteHotel(id: string): Promise<IHotel> {
 
 export async function restoreHotel(id: string): Promise<IHotel> {
   return request<IHotel>(`/hotels/${encodeURIComponent(id)}/restore`, { method: 'PATCH' })
+}
+
+// ==================== AI ====================
+
+export async function aiPolish(text: string): Promise<{ result: string; fallback: boolean }> {
+  return request<{ result: string; fallback: boolean }>('/ai/polish', {
+    method: 'POST',
+    body: JSON.stringify({ text })
+  })
 }

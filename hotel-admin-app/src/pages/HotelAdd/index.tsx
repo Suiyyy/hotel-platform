@@ -1,11 +1,20 @@
 import { useState } from 'react'
-import { Form, Input, InputNumber, Select, Button, Card, message, Space, Divider, Row, Col } from 'antd'
+import { Form, Input, InputNumber, Select, Button, Card, message, Space, Divider, Row, Col, Upload, Checkbox } from 'antd'
+import { PlusOutlined } from '@ant-design/icons'
 import { useHotelStore } from '../../store/hotelContext'
+import { getBaseUrl, aiPolish } from '../../services/hotelApi'
 import type { IRoomType } from '../../types/hotel'
+import type { UploadFile } from 'antd/es/upload'
 import './index.css'
 
 const { Option } = Select
 const { TextArea } = Input
+
+const FACILITY_OPTIONS = [
+  '免费WiFi', '停车场', '健身房', '游泳池', '餐厅',
+  '商务中心', '洗衣服务', '行李寄存', '接机服务', '儿童乐园',
+  'SPA', '私人沙滩', '会议室', '无烟楼层', '24小时前台'
+]
 
 interface IHotelFormValues {
   nameCn: string
@@ -17,12 +26,14 @@ interface IHotelFormValues {
   phone: string
   imageUrl: string
   description?: string
-  facilities?: string
+  facilities?: string[]
 }
 
 const HotelAddPage = () => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
+  const [polishing, setPolishing] = useState(false)
+  const [fileList, setFileList] = useState<UploadFile[]>([])
   const [roomTypes, setRoomTypes] = useState<IRoomType[]>([
     { id: '1', name: '', price: 0, area: 0, bedType: '' }
   ])
@@ -36,17 +47,51 @@ const HotelAddPage = () => {
         roomTypes: roomTypes.filter(r => r.name && r.price > 0),
         rating: 4.5,
         distance: 2.0,
-        facilities: values.facilities ? values.facilities.split(',').map(f => f.trim()) : []
+        facilities: values.facilities || []
       }
 
       await addHotel(hotelData)
       message.success('酒店信息录入成功，等待审核')
       form.resetFields()
+      setFileList([])
       setRoomTypes([{ id: '1', name: '', price: 0, area: 0, bedType: '' }])
     } catch {
       message.error('录入失败')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleUploadChange = (info: { fileList: UploadFile[] }) => {
+    setFileList(info.fileList)
+    const file = info.fileList[0]
+    if (file?.status === 'done' && file.response?.url) {
+      form.setFieldsValue({ imageUrl: file.response.url })
+    }
+    if (file?.status === 'error') {
+      message.error('图片上传失败')
+    }
+  }
+
+  const handlePolish = async () => {
+    const desc = form.getFieldValue('description')
+    if (!desc?.trim()) {
+      message.warning('请先输入酒店简介')
+      return
+    }
+    setPolishing(true)
+    try {
+      const { result, fallback } = await aiPolish(desc)
+      form.setFieldsValue({ description: result })
+      if (fallback) {
+        message.info('AI 暂时不可用，已返回原文')
+      } else {
+        message.success('润色完成')
+      }
+    } catch {
+      message.error('润色失败')
+    } finally {
+      setPolishing(false)
     }
   }
 
@@ -82,8 +127,7 @@ const HotelAddPage = () => {
             star: 3,
             price: 200,
             phone: '010-12345678',
-            openDate: '2024-01-01',
-            imageUrl: 'https://picsum.photos/seed/new/400/300'
+            openDate: '2024-01-01'
           }}
         >
           <Row gutter={16}>
@@ -166,11 +210,27 @@ const HotelAddPage = () => {
             <Col span={12}>
               <Form.Item
                 name="imageUrl"
-                label="图片链接"
-                rules={[{ required: true, message: '请输入图片链接' }]}
+                label="酒店图片"
+                rules={[{ required: true, message: '请上传酒店图片' }]}
               >
-                <Input placeholder="请输入图片链接" />
+                <Input type="hidden" />
               </Form.Item>
+              <Upload
+                action={`${getBaseUrl()}/upload`}
+                name="file"
+                listType="picture-card"
+                maxCount={1}
+                fileList={fileList}
+                onChange={handleUploadChange}
+                accept="image/*"
+              >
+                {fileList.length < 1 && (
+                  <div>
+                    <PlusOutlined />
+                    <div style={{ marginTop: 8 }}>上传图片</div>
+                  </div>
+                )}
+              </Upload>
             </Col>
           </Row>
 
@@ -180,12 +240,25 @@ const HotelAddPage = () => {
           >
             <TextArea rows={4} placeholder="请输入酒店简介" />
           </Form.Item>
+          <Button
+            className="ai-polish-btn"
+            size="small"
+            loading={polishing}
+            onClick={handlePolish}
+          >
+            AI 润色
+          </Button>
 
           <Form.Item
             name="facilities"
-            label="设施服务（用逗号分隔）"
+            label="设施服务"
+            style={{ marginTop: 16 }}
           >
-            <Input placeholder="如：免费WiFi, 停车场, 健身房" />
+            <Checkbox.Group className="facility-checkbox-group">
+              {FACILITY_OPTIONS.map(f => (
+                <Checkbox key={f} value={f}>{f}</Checkbox>
+              ))}
+            </Checkbox.Group>
           </Form.Item>
 
           <Divider>房型管理</Divider>
@@ -251,7 +324,7 @@ const HotelAddPage = () => {
               <Button type="primary" htmlType="submit" loading={loading} size="large">
                 提交审核
               </Button>
-              <Button size="large" onClick={() => form.resetFields()}>
+              <Button size="large" onClick={() => { form.resetFields(); setFileList([]) }}>
                 重置
               </Button>
             </Space>

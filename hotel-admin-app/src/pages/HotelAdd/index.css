@@ -39,3 +39,37 @@
 .hotel-add-container .ant-btn-primary:active {
   transform: scale(0.97);
 }
+
+/* AI 润色按钮 */
+.ai-polish-btn {
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  color: #fff !important;
+  border: none !important;
+  border-radius: 6px;
+  font-size: 12px;
+  margin-top: -8px;
+}
+.ai-polish-btn:hover {
+  opacity: 0.85;
+}
+
+/* 设施标签 */
+.facility-checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.facility-checkbox-group .ant-checkbox-wrapper {
+  margin-inline-start: 0 !important;
+  padding: 4px 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+.facility-checkbox-group .ant-checkbox-wrapper:hover {
+  border-color: #7c3aed;
+}
+.facility-checkbox-group .ant-checkbox-wrapper-checked {
+  border-color: #7c3aed;
+  background-color: #f5f0ff;
+}

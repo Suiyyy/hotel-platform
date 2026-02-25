@@ -41,3 +41,4 @@ lerna-debug.log*
 
 # Backend runtime data
 hotel-backend/data/hotels.json
+hotel-backend/uploads/

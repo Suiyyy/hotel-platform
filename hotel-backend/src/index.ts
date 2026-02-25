@@ -1,18 +1,33 @@
 import http from 'node:http'
+import path from 'node:path'
 import express, { type Request, type Response, type NextFunction } from 'express'
 import cors from 'cors'
+import multer from 'multer'
 import { initRedis } from './redis.js'
 import { getAllHotels, getHotel, saveHotel } from './store.js'
 import { findUserByUsername, createUser } from './userStore.js'
 import { generateToken, authMiddleware } from './middleware/auth.js'
 import { validateHotelCreate, validateHotelPatch } from './middleware/validate.js'
 import { setupWebSocket, broadcastPriceUpdate } from './ws.js'
-import { parseSearchIntent, aiSearchHotels } from './ai.js'
+import { parseSearchIntent, aiSearchHotels, polishDescription } from './ai.js'
 import type { IHotel } from './types/hotel.js'
 
 const app = express()
 app.use(cors())
 app.use(express.json({ limit: '2mb' }))
+
+// 静态文件服务：上传的图片
+app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')))
+
+// multer 配置
+const storage = multer.diskStorage({
+  destination: path.resolve(process.cwd(), 'uploads'),
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname)
+    cb(null, `${Date.now()}${ext}`)
+  }
+})
+const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } })
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3001
 
@@ -226,6 +241,17 @@ app.patch('/hotels/:id/restore', async (req: Request<{ id: string }>, res: Respo
   }
 })
 
+// ==================== File Upload ====================
+
+app.post('/upload', upload.single('file'), (req: Request, res: Response) => {
+  if (!req.file) {
+    res.status(400).json({ message: '请选择文件' })
+    return
+  }
+  const url = `/uploads/${req.file.filename}`
+  res.json({ url })
+})
+
 // ==================== AI Search ====================
 
 app.post('/ai/search', async (req: Request, res: Response, next: NextFunction) => {
@@ -239,6 +265,22 @@ app.post('/ai/search', async (req: Request, res: Response, next: NextFunction) =
     const { intent, fallback } = await parseSearchIntent(query.trim())
     const result = await aiSearchHotels(intent, page || 1, pageSize || 10, fallback)
 
+    res.json(result)
+  } catch (e) {
+    next(e)
+  }
+})
+
+// ==================== AI Polish ====================
+
+app.post('/ai/polish', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { text } = req.body as { text?: string }
+    if (!text || !text.trim()) {
+      res.status(400).json({ message: '请输入需要润色的文本' })
+      return
+    }
+    const result = await polishDescription(text.trim())
     res.json(result)
   } catch (e) {
     next(e)
