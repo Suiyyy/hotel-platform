@@ -1,0 +1,19 @@
+.virtual-list-scroll {
+  width: 100%;
+}
+
+.virtual-list-phantom {
+  position: relative;
+  width: 100%;
+}
+
+.virtual-list-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.virtual-list-item {
+  box-sizing: border-box;
+}

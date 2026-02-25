@@ -1,13 +1,15 @@
-import { useState, useEffect } from 'react'
-import { View, Text, Image, ScrollView } from '@tarojs/components'
+import { useState, useEffect, useCallback } from 'react'
+import { View, Text, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useHotelStore } from '../../store/hotelContext'
+import VirtualList from '../../components/VirtualList'
 import type { IHotel } from '../../types/hotel'
 import './index.scss'
 
 type SortKey = 'price' | 'rating' | 'distance'
 
 const PAGE_SIZE = 5
+const ITEM_HEIGHT = 140
 
 const sortOptions: { key: SortKey; label: string }[] = [
   { key: 'price', label: '价格' },
@@ -30,7 +32,7 @@ const sortHotels = (hotels: IHotel[], sortType: SortKey): IHotel[] => {
 }
 
 const renderStars = (star: number) => {
-  const stars = []
+  const stars: JSX.Element[] = []
   for (let i = 0; i < 5; i++) {
     stars.push(
       <Text key={i} className={`star ${i < star ? 'star-filled' : ''}`}>★</Text>
@@ -46,7 +48,7 @@ const ListPage = () => {
   const [hasMore, setHasMore] = useState(true)
   const { getApprovedOnlineHotels, searchParams } = useHotelStore()
 
-  const loadHotels = (isRefresh = false) => {
+  const loadHotels = useCallback((isRefresh = false) => {
     const page = isRefresh ? 1 : currentPage
     let hotels = getApprovedOnlineHotels()
 
@@ -66,7 +68,7 @@ const ListPage = () => {
     setDisplayedHotels(newDisplayedHotels)
     setCurrentPage(page)
     setHasMore(endIndex < hotels.length)
-  }
+  }, [currentPage, sortBy, searchParams, getApprovedOnlineHotels])
 
   useEffect(() => {
     loadHotels(true)
@@ -88,6 +90,33 @@ const ListPage = () => {
     }
   }, [currentPage])
 
+  const renderHotelCard = useCallback((hotel: IHotel) => (
+    <View
+      className='hotel-card'
+      onClick={() => handleHotelClick(hotel.id)}
+    >
+      <Image className='hotel-image' src={hotel.imageUrl} mode='aspectFill' />
+      <View className='hotel-info'>
+        <Text className='hotel-name'>{hotel.nameCn}</Text>
+        <View className='hotel-stars'>{renderStars(hotel.star)}</View>
+        <Text className='hotel-address'>{hotel.address}</Text>
+        <View className='hotel-meta'>
+          <Text className='hotel-rating'>评分 {hotel.rating}</Text>
+          <Text className='hotel-distance'>距您 {hotel.distance}km</Text>
+        </View>
+        <View className='hotel-price'>
+          <Text className='price-label'>¥</Text>
+          <Text className='price-value'>{hotel.price}</Text>
+          <Text className='price-unit'>起/晚</Text>
+        </View>
+      </View>
+    </View>
+  ), [])
+
+  // Get window height for virtual list container
+  const systemInfo = Taro.getSystemInfoSync()
+  const containerHeight = systemInfo.windowHeight - 50 // subtract sort tabs height
+
   return (
     <View className='list-page'>
       <View className='sort-tabs'>
@@ -102,45 +131,25 @@ const ListPage = () => {
         ))}
       </View>
 
-      <ScrollView
-        className='hotel-list'
-        scrollY={true}
-        onScrollToLower={handleScrollToLower}
-      >
-        {displayedHotels.map(hotel => (
-          <View
-            key={hotel.id}
-            className='hotel-card'
-            onClick={() => handleHotelClick(hotel.id)}
-          >
-            <Image className='hotel-image' src={hotel.imageUrl} mode='aspectFill' />
-            <View className='hotel-info'>
-              <Text className='hotel-name'>{hotel.nameCn}</Text>
-              <View className='hotel-stars'>{renderStars(hotel.star)}</View>
-              <Text className='hotel-address'>{hotel.address}</Text>
-              <View className='hotel-meta'>
-                <Text className='hotel-rating'>评分 {hotel.rating}</Text>
-                <Text className='hotel-distance'>距您 {hotel.distance}km</Text>
-              </View>
-              <View className='hotel-price'>
-                <Text className='price-label'>¥</Text>
-                <Text className='price-value'>{hotel.price}</Text>
-                <Text className='price-unit'>起/晚</Text>
-              </View>
-            </View>
-          </View>
-        ))}
+      {displayedHotels.length > 0 ? (
+        <VirtualList
+          items={displayedHotels}
+          itemHeight={ITEM_HEIGHT}
+          containerHeight={containerHeight}
+          renderItem={renderHotelCard}
+          onScrollToLower={handleScrollToLower}
+          overscan={3}
+        />
+      ) : (
+        <View className='empty-state'><Text>暂无符合条件的酒店</Text></View>
+      )}
 
-        {hasMore && (
-          <View className='loading-more'><Text>加载更多...</Text></View>
-        )}
-        {!hasMore && displayedHotels.length > 0 && (
-          <View className='no-more'><Text>没有更多了</Text></View>
-        )}
-        {displayedHotels.length === 0 && (
-          <View className='empty-state'><Text>暂无符合条件的酒店</Text></View>
-        )}
-      </ScrollView>
+      {hasMore && displayedHotels.length > 0 && (
+        <View className='loading-more'><Text>加载更多...</Text></View>
+      )}
+      {!hasMore && displayedHotels.length > 0 && (
+        <View className='no-more'><Text>没有更多了</Text></View>
+      )}
     </View>
   )
 }
