@@ -50,8 +50,8 @@ export interface IHotelContextValue {
   hotels: IHotel[]
   users: IUser[]
   currentUser: IUser | null
-  login: (username: string, password: string) => ILoginResult
-  register: (username: string, password: string, role: IUser['role']) => IRegisterResult
+  login: (username: string, password: string) => Promise<ILoginResult>
+  register: (username: string, password: string, role: IUser['role']) => Promise<IRegisterResult>
   logout: () => void
   addHotel: (hotelData: Partial<IHotel>) => Promise<IHotel>
   updateHotel: (id: string, data: Partial<IHotel>) => Promise<IHotel>

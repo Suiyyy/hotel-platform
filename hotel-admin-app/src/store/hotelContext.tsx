@@ -1,6 +1,15 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
-import { mockHotels, mockUsers } from '../utils/mockData'
-import { createHotel as createHotelApi, fetchHotels, patchHotel } from '../services/hotelApi'
+import { mockHotels } from '../utils/mockData'
+import {
+  createHotel as createHotelApi,
+  fetchHotels,
+  patchHotel,
+  loginApi,
+  registerApi,
+  setToken,
+  clearToken,
+  getToken
+} from '../services/hotelApi'
 import type { IHotel, IUser, ILoginResult, IRegisterResult, IHotelContextValue } from '../types/hotel'
 
 const HotelContext = createContext<IHotelContextValue | undefined>(undefined)
@@ -19,11 +28,6 @@ export const HotelProvider = ({ children }: HotelProviderProps) => {
   const [hotels, setHotels] = useState<IHotel[]>(() => {
     const stored = localStorage.getItem('hotels')
     return stored ? (JSON.parse(stored) as IHotel[]) : mockHotels
-  })
-
-  const [users, setUsers] = useState<IUser[]>(() => {
-    const stored = localStorage.getItem('users')
-    return stored ? (JSON.parse(stored) as IUser[]) : mockUsers
   })
 
   const [currentUser, setCurrentUser] = useState<IUser | null>(() => {
@@ -51,10 +55,6 @@ export const HotelProvider = ({ children }: HotelProviderProps) => {
   }, [])
 
   useEffect(() => {
-    localStorage.setItem('users', JSON.stringify(users))
-  }, [users])
-
-  useEffect(() => {
     if (currentUser) {
       localStorage.setItem('currentUser', JSON.stringify(currentUser))
     } else {
@@ -62,32 +62,30 @@ export const HotelProvider = ({ children }: HotelProviderProps) => {
     }
   }, [currentUser])
 
-  const login = (username: string, password: string): ILoginResult => {
-    const user = users.find(u => u.username === username && u.password === password)
-    if (user) {
+  const login = async (username: string, password: string): Promise<ILoginResult> => {
+    try {
+      const res = await loginApi(username, password)
+      setToken(res.token)
+      const user: IUser = { ...res.user, password: '' }
       setCurrentUser(user)
       return { success: true, user }
+    } catch (err) {
+      return { success: false, message: err instanceof Error ? err.message : '登录失败' }
     }
-    return { success: false, message: '用户名或密码错误' }
   }
 
-  const register = (username: string, password: string, role: IUser['role'] = 'user'): IRegisterResult => {
-    const exists = users.find(u => u.username === username)
-    if (exists) {
-      return { success: false, message: '用户名已存在' }
+  const register = async (username: string, password: string, role: IUser['role'] = 'user'): Promise<IRegisterResult> => {
+    try {
+      await registerApi(username, password, role)
+      return { success: true }
+    } catch (err) {
+      return { success: false, message: err instanceof Error ? err.message : '注册失败' }
     }
-    const newUser: IUser = {
-      id: Date.now().toString(),
-      username,
-      password,
-      role
-    }
-    setUsers([...users, newUser])
-    return { success: true }
   }
 
   const logout = (): void => {
     setCurrentUser(null)
+    clearToken()
   }
 
   const addHotel = async (hotel: Partial<IHotel>): Promise<IHotel> => {
@@ -117,7 +115,7 @@ export const HotelProvider = ({ children }: HotelProviderProps) => {
 
   const value: IHotelContextValue = {
     hotels,
-    users,
+    users: [],
     currentUser,
     login,
     register,
