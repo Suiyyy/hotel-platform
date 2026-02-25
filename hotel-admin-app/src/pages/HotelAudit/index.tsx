@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react'
 import { Table, Button, Tag, Modal, Input, message, Space, Card, Popconfirm, Image, Tabs } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { CheckOutlined, CloseOutlined, PoweroffOutlined, SearchOutlined } from '@ant-design/icons'
-import { useNavigate } from 'react-router-dom'
 import { useHotelStore } from '../../store/hotelContext'
 import { restoreHotel } from '../../services/hotelApi'
 import type { IHotel } from '../../types/hotel'
@@ -18,8 +17,7 @@ const HotelAuditPage = () => {
   const [rejectReason, setRejectReason] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [searchKeyword, setSearchKeyword] = useState('')
-  const { hotels, updateHotelStatus, toggleHotelOnline, currentUser, logout } = useHotelStore()
-  const navigate = useNavigate()
+  const { hotels, updateHotelStatus, toggleHotelOnline } = useHotelStore()
 
   const filteredHotels = useMemo(() => {
     let list = hotels
@@ -93,11 +91,6 @@ const HotelAuditPage = () => {
     }
   }
 
-  const handleLogout = () => {
-    logout()
-    navigate('/')
-  }
-
   const columns: ColumnsType<IHotel> = [
     {
       title: '酒店图片',
@@ -160,14 +153,7 @@ const HotelAuditPage = () => {
 
   return (
     <div className="hotel-audit-container">
-      <div className="page-header">
-        <h1>酒店审核管理</h1>
-        <div className="user-info">
-          <span>欢迎，管理员 {currentUser?.username}</span>
-          <Button type="link" onClick={handleLogout}>退出</Button>
-        </div>
-      </div>
-
+      <h2>酒店审核管理</h2>
       <Card>
         <Tabs activeKey={statusFilter} onChange={(k) => setStatusFilter(k as StatusFilter)} items={tabItems} />
         <div style={{ marginBottom: 16 }}>

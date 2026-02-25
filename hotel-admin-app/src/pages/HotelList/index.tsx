@@ -4,14 +4,12 @@ import type { ColumnsType } from 'antd/es/table'
 import { EditOutlined, DeleteOutlined, ReloadOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { fetchMyHotels, deleteHotel } from '../../services/hotelApi'
-import { useHotelStore } from '../../store/hotelContext'
 import type { IHotel } from '../../types/hotel'
 import './index.css'
 
 const HotelListPage = () => {
   const [myHotels, setMyHotels] = useState<IHotel[]>([])
   const [loading, setLoading] = useState(false)
-  const { currentUser, logout } = useHotelStore()
   const navigate = useNavigate()
 
   const loadHotels = async () => {
@@ -38,11 +36,6 @@ const HotelListPage = () => {
     } catch {
       message.error('操作失败')
     }
-  }
-
-  const handleLogout = () => {
-    logout()
-    navigate('/')
   }
 
   const getStatusTag = (status: IHotel['status']) => {
@@ -94,14 +87,7 @@ const HotelListPage = () => {
 
   return (
     <div className="hotel-list-container">
-      <div className="page-header">
-        <h1>我的酒店</h1>
-        <div className="user-info">
-          <span>欢迎，{currentUser?.username}</span>
-          <Button type="link" onClick={() => navigate('/add-hotel')}>录入酒店</Button>
-          <Button type="link" onClick={handleLogout}>退出</Button>
-        </div>
-      </div>
+      <h2>我的酒店</h2>
       <Card>
         <div style={{ marginBottom: 16 }}>
           <Button icon={<ReloadOutlined />} onClick={loadHotels} loading={loading}>刷新</Button>

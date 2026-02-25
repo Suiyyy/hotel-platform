@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Form, Input, InputNumber, Select, Button, Card, message, Space, Divider, Row, Col } from 'antd'
-import { useNavigate } from 'react-router-dom'
 import { useHotelStore } from '../../store/hotelContext'
 import type { IRoomType } from '../../types/hotel'
 import './index.css'
@@ -27,8 +26,7 @@ const HotelAddPage = () => {
   const [roomTypes, setRoomTypes] = useState<IRoomType[]>([
     { id: '1', name: '', price: 0, area: 0, bedType: '' }
   ])
-  const { addHotel, currentUser, logout } = useHotelStore()
-  const navigate = useNavigate()
+  const { addHotel } = useHotelStore()
 
   const handleSubmit = async (values: IHotelFormValues) => {
     setLoading(true)
@@ -71,21 +69,9 @@ const HotelAddPage = () => {
     ))
   }
 
-  const handleLogout = () => {
-    logout()
-    navigate('/')
-  }
-
   return (
     <div className="hotel-add-container">
-      <div className="page-header">
-        <h1>酒店信息录入</h1>
-        <div className="user-info">
-          <span>欢迎，{currentUser?.username}</span>
-          <Button type="link" onClick={handleLogout}>退出</Button>
-        </div>
-      </div>
-
+      <h2>酒店信息录入</h2>
       <Card>
         <Form
           form={form}

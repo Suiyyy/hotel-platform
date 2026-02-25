@@ -27,7 +27,7 @@ const HotelEditPage = () => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [roomTypes, setRoomTypes] = useState<IRoomType[]>([])
-  const { hotels, currentUser, logout } = useHotelStore()
+  const { hotels } = useHotelStore()
   const navigate = useNavigate()
 
   const hotel = hotels.find(h => h.id === id)
@@ -80,23 +80,13 @@ const HotelEditPage = () => {
     setRoomTypes(roomTypes.map(r => r.id === rid ? { ...r, [field]: value } : r))
   }
 
-  const handleLogout = () => { logout(); navigate('/') }
-
   if (!hotel) {
     return <div style={{ textAlign: 'center', padding: 100 }}><Spin size="large" tip="加载中..." /></div>
   }
 
   return (
     <div className="hotel-add-container">
-      <div className="page-header">
-        <h1>编辑酒店信息</h1>
-        <div className="user-info">
-          <span>欢迎，{currentUser?.username}</span>
-          <Button type="link" onClick={() => navigate('/my-hotels')}>返回列表</Button>
-          <Button type="link" onClick={handleLogout}>退出</Button>
-        </div>
-      </div>
-
+      <h2>编辑酒店信息</h2>
       <Card>
         <Form form={form} layout="vertical" onFinish={handleSubmit} size="large">
           <Row gutter={16}>
