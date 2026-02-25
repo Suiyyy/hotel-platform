@@ -1,6 +1,6 @@
 .history-page {
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background-color: var(--bg-primary);
   padding: 12px;
 }
 
@@ -14,7 +14,7 @@
 
 .history-count {
   font-size: 13px;
-  color: #999;
+  color: var(--text-hint);
 }
 
 .history-clear {
@@ -24,11 +24,11 @@
 
 .history-card {
   display: flex;
-  background-color: #fff;
+  background-color: var(--bg-card);
   border-radius: 8px;
   overflow: hidden;
   margin-bottom: 12px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 4px var(--shadow-color);
 }
 
 .history-image {
@@ -48,12 +48,12 @@
 .history-name {
   font-size: 15px;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .history-address {
   font-size: 12px;
-  color: #999;
+  color: var(--text-hint);
   margin-top: 4px;
 }
 
@@ -66,7 +66,7 @@
 
 .history-time {
   font-size: 11px;
-  color: #ccc;
+  color: var(--text-disabled);
 }
 
 .history-price {
@@ -76,18 +76,18 @@
 
 .history-price-symbol {
   font-size: 12px;
-  color: #ff6600;
+  color: var(--price-color);
 }
 
 .history-price-value {
   font-size: 16px;
   font-weight: 700;
-  color: #ff6600;
+  color: var(--price-color);
 }
 
 .history-price-unit {
   font-size: 11px;
-  color: #999;
+  color: var(--text-hint);
 }
 
 .empty-state {
@@ -99,5 +99,5 @@
 
 .empty-text {
   font-size: 16px;
-  color: #999;
+  color: var(--text-hint);
 }

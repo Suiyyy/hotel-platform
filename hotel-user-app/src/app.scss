@@ -1,1 +1,36 @@
+// 亮色主题（默认）
+:root,
+[data-theme="light"] {
+  --bg-primary: #f5f5f5;
+  --bg-card: #fff;
+  --bg-input: #fff;
+  --text-primary: #333;
+  --text-secondary: #666;
+  --text-hint: #999;
+  --text-disabled: #ccc;
+  --border-color: #e0e0e0;
+  --border-light: #f0f0f0;
+  --shadow-color: rgba(0, 0, 0, 0.05);
+  --tag-bg: #f0f7ff;
+  --tag-color: #0066cc;
+  --accent-color: #0066cc;
+  --price-color: #ff6600;
+}
 
+// 暗色主题
+[data-theme="dark"] {
+  --bg-primary: #1a1a1a;
+  --bg-card: #2a2a2a;
+  --bg-input: #333;
+  --text-primary: #e0e0e0;
+  --text-secondary: #aaa;
+  --text-hint: #888;
+  --text-disabled: #555;
+  --border-color: #444;
+  --border-light: #333;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --tag-bg: #1a2a3a;
+  --tag-color: #4d9fff;
+  --accent-color: #4d9fff;
+  --price-color: #ff8833;
+}

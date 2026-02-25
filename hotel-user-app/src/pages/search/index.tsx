@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { View, Text, Input, Button, Swiper, SwiperItem, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useHotelStore } from '../../store/hotelContext'
+import { useTheme } from '../../store/themeContext'
 import Calendar from '../../components/Calendar'
 import './index.scss'
 
@@ -17,6 +18,7 @@ const SearchPage = () => {
   const [checkOutDate, setCheckOutDate] = useState('')
   const [showCalendar, setShowCalendar] = useState(false)
   const { searchHotels } = useHotelStore()
+  const { isDark, toggleTheme } = useTheme()
 
   const handleSearch = () => {
     if (!checkInDate || !checkOutDate) {
@@ -35,6 +37,12 @@ const SearchPage = () => {
 
   return (
     <View className='search-page'>
+      <View className='theme-toggle'>
+        <Text className='theme-toggle-btn' onClick={toggleTheme}>
+          {isDark ? '切换日间' : '切换夜间'}
+        </Text>
+      </View>
+
       <Swiper className='banner-swiper' indicatorDots autoplay circular>
         {bannerImages.map((img, index) => (
           <SwiperItem key={index}>
