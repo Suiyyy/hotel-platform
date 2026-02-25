@@ -83,10 +83,38 @@ app.post('/auth/login', async (req: Request, res: Response, next: NextFunction) 
 
 // ==================== Hotels (public) ====================
 
-app.get('/hotels/public', async (_req: Request, res: Response, next: NextFunction) => {
+app.get('/hotels/public', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const hotels = await getAllHotels()
-    res.json(hotels.filter((h: IHotel) => h.status === 'approved' && h.isOnline))
+    let filtered = hotels.filter((h: IHotel) => h.status === 'approved' && h.isOnline)
+
+    // Keyword filter
+    const keyword = (req.query.keyword as string || '').trim().toLowerCase()
+    if (keyword) {
+      filtered = filtered.filter(h =>
+        h.nameCn.toLowerCase().includes(keyword) ||
+        h.address.toLowerCase().includes(keyword) ||
+        (h.nameEn && h.nameEn.toLowerCase().includes(keyword))
+      )
+    }
+
+    // Sort
+    const sort = req.query.sort as string || 'price'
+    const order = req.query.order as string || 'asc'
+    const sortKey = (['price', 'rating', 'distance', 'star'].includes(sort) ? sort : 'price') as keyof IHotel
+    filtered.sort((a, b) => {
+      const va = a[sortKey] as number
+      const vb = b[sortKey] as number
+      return order === 'desc' ? vb - va : va - vb
+    })
+
+    // Pagination
+    const page = Math.max(1, parseInt(req.query.page as string) || 1)
+    const pageSize = Math.max(1, Math.min(50, parseInt(req.query.pageSize as string) || 10))
+    const total = filtered.length
+    const data = filtered.slice((page - 1) * pageSize, page * pageSize)
+
+    res.json({ data, total, page, pageSize })
   } catch (e) {
     next(e)
   }
