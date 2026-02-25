@@ -2,6 +2,7 @@ import { PropsWithChildren } from 'react'
 import { useLaunch } from '@tarojs/taro'
 import { HotelProvider } from './store/hotelContext'
 import { FavoritesProvider } from './store/favoritesContext'
+import { HistoryProvider } from './store/historyContext'
 
 import './app.scss'
 
@@ -12,7 +13,9 @@ function App({ children }: PropsWithChildren<any>) {
 
   return (
     <HotelProvider>
-      <FavoritesProvider>{children}</FavoritesProvider>
+      <FavoritesProvider>
+        <HistoryProvider>{children}</HistoryProvider>
+      </FavoritesProvider>
     </HotelProvider>
   )
 }

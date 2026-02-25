@@ -3,6 +3,7 @@ import { View, Text, Image, ScrollView, Button, Swiper, SwiperItem } from '@taro
 import Taro from '@tarojs/taro'
 import { useHotelStore } from '../../store/hotelContext'
 import { useFavorites } from '../../store/favoritesContext'
+import { useHistory } from '../../store/historyContext'
 import { onPriceUpdate } from '../../services/wsClient'
 import type { IHotel, IRoomType } from '../../types/hotel'
 import './index.scss'
@@ -37,14 +38,18 @@ const DetailPage = () => {
   const router = Taro.getCurrentInstance().router
   const { getHotelById } = useHotelStore()
   const { isFavorite, toggleFavorite } = useFavorites()
+  const { addHistory } = useHistory()
 
   useEffect(() => {
     const hotelId = router?.params?.id
     if (hotelId) {
       const hotelData = getHotelById(hotelId)
-      if (hotelData) setHotel(hotelData)
+      if (hotelData) {
+        setHotel(hotelData)
+        addHistory(hotelId)
+      }
     }
-  }, [router, getHotelById])
+  }, [router, getHotelById, addHistory])
 
   // WebSocket 实时价格更新
   useEffect(() => {

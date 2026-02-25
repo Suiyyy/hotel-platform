@@ -3,7 +3,8 @@ export default defineAppConfig({
     'pages/search/index',
     'pages/list/index',
     'pages/detail/index',
-    'pages/favorites/index'
+    'pages/favorites/index',
+    'pages/history/index'
   ],
   window: {
     backgroundTextStyle: 'light',
@@ -24,6 +25,10 @@ export default defineAppConfig({
       {
         pagePath: 'pages/favorites/index',
         text: '收藏'
+      },
+      {
+        pagePath: 'pages/history/index',
+        text: '足迹'
       }
     ]
   }
