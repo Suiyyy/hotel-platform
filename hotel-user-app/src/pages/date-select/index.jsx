@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { View, Text, Button, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
+import { useHotelStore } from '../../store/hotelContext';
 import './index.scss';
 
 const DateSelectPage = () => {
+  const { updateSearchParams } = useHotelStore();
   const [checkInDate, setCheckInDate] = useState(null);
   const [checkOutDate, setCheckOutDate] = useState(null);
   const [nights, setNights] = useState(0);
@@ -69,11 +71,23 @@ const DateSelectPage = () => {
         return `${month}月${day}日 ${dayLabel}`;
       };
 
+      const checkInDateStr = formatDate(checkInDate);
+      const checkOutDateStr = formatDate(checkOutDate);
+
       Taro.setStorageSync('selectedDates', {
-        checkInDate: formatDate(checkInDate),
-        checkOutDate: formatDate(checkOutDate),
+        checkInDate: checkInDateStr,
+        checkOutDate: checkOutDateStr,
         nights: nights
       });
+
+      // 更新searchParams中的日期
+      if (updateSearchParams) {
+        updateSearchParams({
+          checkInDate: checkInDateStr,
+          checkOutDate: checkOutDateStr
+        });
+      }
+
       Taro.navigateBack();
     } else {
       Taro.showToast({

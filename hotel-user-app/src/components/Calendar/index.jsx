@@ -85,6 +85,36 @@ const Calendar = ({ visible, onClose, onDateSelect, checkInDate, checkOutDate })
     }
   };
 
+  const scrollToDateRange = (startDate, endDate) => {
+    if (scrollViewRef.current) {
+      const startYear = startDate.getFullYear();
+      const startMonth = startDate.getMonth();
+      const endYear = endDate.getFullYear();
+      const endMonth = endDate.getMonth();
+
+      const startMonthElement = document.getElementById(`month-${startYear}-${startMonth}`);
+      const endMonthElement = document.getElementById(`month-${endYear}-${endMonth}`);
+
+      if (startMonthElement && endMonthElement) {
+        const calendarContainer = scrollViewRef.current;
+        const containerHeight = calendarContainer.clientHeight;
+        
+        const startTop = startMonthElement.offsetTop;
+        const endTop = endMonthElement.offsetTop + endMonthElement.offsetHeight;
+        const rangeMidpoint = (startTop + endTop) / 2;
+        
+        const scrollTop = rangeMidpoint - (containerHeight / 2);
+        calendarContainer.scrollTop = Math.max(0, scrollTop);
+      } else if (startMonthElement) {
+        // If only start month exists (same month), scroll to that month
+        scrollToDate(startDate);
+      } else if (endMonthElement) {
+        // If only end month exists (same month), scroll to that month
+        scrollToDate(endDate);
+      }
+    }
+  };
+
   const getNights = () => {
     if (!selectedStart || !selectedEnd) return 0;
     const diffTime = Math.abs(selectedEnd - selectedStart);
@@ -98,6 +128,9 @@ const Calendar = ({ visible, onClose, onDateSelect, checkInDate, checkOutDate })
     const selectedDate = new Date(date);
     selectedDate.setHours(0, 0, 0, 0);
 
+    let newStart = selectedStart;
+    let newEnd = selectedEnd;
+
     if (isSameDay(selectedDate, selectedStart)) {
       setSelectedStart(null);
       setSelectedEnd(null);
@@ -110,19 +143,31 @@ const Calendar = ({ visible, onClose, onDateSelect, checkInDate, checkOutDate })
     }
 
     if (!selectedStart || (selectedStart && selectedEnd)) {
+      newStart = selectedDate;
+      newEnd = null;
       setSelectedStart(selectedDate);
       setSelectedEnd(null);
     } else {
       if (selectedDate < selectedStart) {
+        newEnd = selectedStart;
+        newStart = selectedDate;
         setSelectedEnd(selectedStart);
         setSelectedStart(selectedDate);
       } else {
+        newEnd = selectedDate;
         setSelectedEnd(selectedDate);
       }
     }
 
-    // Scroll to the selected date
-    scrollToDate(selectedDate);
+    // If both dates are selected, scroll to the midpoint
+    if (newStart && newEnd) {
+      setTimeout(() => {
+        scrollToDateRange(newStart, newEnd);
+      }, 100);
+    } else if (newStart) {
+      // Scroll to the selected date
+      scrollToDate(newStart);
+    }
   };
 
   const handleComplete = () => {

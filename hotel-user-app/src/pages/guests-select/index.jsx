@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { View, Text, Button } from '@tarojs/components';
 import Taro from '@tarojs/taro';
+import { useHotelStore } from '../../store/hotelContext';
 import './index.scss';
 
 const GuestsSelectPage = () => {
+  const { updateSearchParams } = useHotelStore();
   const [rooms, setRooms] = useState(1);
   const [adults, setAdults] = useState(1);
   const [children, setChildren] = useState(0);
@@ -31,6 +33,16 @@ const GuestsSelectPage = () => {
 
   const handleConfirm = () => {
     Taro.setStorageSync('selectedGuests', { rooms, adults, children });
+    
+    // 更新searchParams中的间数信息
+    if (updateSearchParams) {
+      updateSearchParams({
+        rooms,
+        adults,
+        children
+      });
+    }
+    
     Taro.navigateBack();
   };
 

@@ -52,6 +52,12 @@
   transition: all 0.2s ease;
 }
 
+.nav-action:hover {
+  background-color: #f0f9ff;
+  transform: scale(1.1);
+  border-radius: 8px;
+}
+
 .nav-action:active {
   background-color: #f0f0f0;
 }
@@ -110,16 +116,11 @@
 }
 
 .hotel-name-section {
-  margin-bottom: 16px;
+  margin-bottom: 8px !important; /* 减半 */
 }
-
 .hotel-detail-name {
-  font-size: 24px;
-  font-weight: 700;
-  color: #333;
-  display: block;
-  margin-bottom: 8px;
-  transition: all 0.2s ease;
+  margin-bottom: 4px !important; /* 减半 */
+  line-height: 1.2;             /* 紧凑化大标题 */
 }
 
 .hotel-detail-name:active {
@@ -144,10 +145,13 @@
 
 .vip-tag {
   background: linear-gradient(135deg, #ff9800, #ffc107);
-  padding: 4px 12px;
-  border-radius: 12px;
+  padding: 2px 8px;
+  border-radius: 8px;
   margin-left: 8px;
   transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .vip-tag:active {
@@ -156,9 +160,10 @@
 }
 
 .vip-tag-text {
-  font-size: 11px;
+  font-size: 10px;
   color: #fff;
   font-weight: 600;
+  text-align: center;
 }
 
 .hotel-meta-row {
@@ -548,17 +553,17 @@
 
 .room-tabs {
   display: flex;
-  gap: 12px;
-  padding: 12px 0;
+  gap: 8px;
+  padding: 8px 0;
   overflow-x: auto;
   flex-wrap: nowrap;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .room-tab {
   flex-shrink: 0;
-  padding: 8px 16px;
-  border-radius: 20px;
+  padding: 6px 12px;
+  border-radius: 16px;
   background-color: #f5f5f5;
   transition: all 0.2s ease;
 }
@@ -569,7 +574,7 @@
 }
 
 .room-tab-text {
-  font-size: 14px;
+  font-size: 13px;
   color: #333;
 }
 
@@ -589,8 +594,8 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 8px 16px;
-  border-radius: 20px;
+  padding: 6px 12px;
+  border-radius: 16px;
   background-color: #fff;
   border: 1px solid #e8e8e8;
   transition: all 0.2s ease;
@@ -603,26 +608,44 @@
 }
 
 .room-filter-text {
-  font-size: 14px;
+  font-size: 13px;
   color: #333;
 }
 
 .room-filter-arrow {
-  font-size: 12px;
+  font-size: 11px;
   color: #666;
 }
 
 .room-item {
   background-color: #fff;
-  padding: 16px;
-  border-radius: 12px;
+  padding: 12px;
+  border-radius: 16px;
   margin-bottom: 12px;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  gap: 16px;
+}
+
+.room-left {
+  flex-shrink: 0;
+  width: 140px;
+}
+
+.room-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.room-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 .room-item:active {
-  transform: translateY(2px);
+  transform: translateY(1px);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
@@ -630,11 +653,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .room-name {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   color: #333;
   flex: 1;
@@ -657,13 +680,12 @@
 }
 
 .room-expand-icon {
-  font-size: 16px;
+  font-size: 20px;
   color: #666;
 }
 
 .room-image-wrapper {
   position: relative;
-  margin-bottom: 12px;
   border-radius: 12px;
   overflow: hidden;
   transition: all 0.2s ease;
@@ -675,17 +697,54 @@
 
 .room-image {
   width: 100%;
-  height: 180px;
+  height: 140px;
   border-radius: 12px;
+}
+
+.room-desc {
+  margin-bottom: 8px;
+}
+
+.room-desc-text {
+  font-size: 15px;
+  color: #333;
+  line-height: 1.5;
+}
+
+.room-policy {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background-color: #fff;
+  transition: all 0.2s ease;
+}
+
+.room-policy:active {
+  background-color: #f5f5f5;
+  transform: scale(1.02);
+}
+
+.room-policy-text {
+  font-size: 13px;
+  color: #1890ff;
+}
+
+.room-policy-arrow {
+  font-size: 13px;
+  color: #1890ff;
+  margin-left: auto;
 }
 
 .room-badge {
   position: absolute;
-  bottom: 8px;
-  left: 8px;
+  bottom: 6px;
+  left: 6px;
   background-color: rgba(0, 0, 0, 0.6);
-  padding: 4px 12px;
-  border-radius: 12px;
+  padding: 3px 10px;
+  border-radius: 10px;
   transition: all 0.2s ease;
 }
 
@@ -695,56 +754,76 @@
 }
 
 .room-badge-count {
-  font-size: 12px;
+  font-size: 11px;
   color: #fff;
+}
+
+.room-item-selected {
+  border: 2px solid #ff6b00;
+  box-shadow: 0 4px 16px rgba(255, 107, 0, 0.2);
+}
+
+.room-selected-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background-color: #ff6b00;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.room-selected-text {
+  font-size: 14px;
+  color: #fff;
+  font-weight: 600;
 }
 
 .room-tags {
   display: flex;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .room-tag {
-  font-size: 12px;
-  color: #1890ff;
-  background-color: #e6f7ff;
-  padding: 4px 12px;
-  border-radius: 12px;
+  font-size: 13px;
+  color: #666;
+  background-color: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #e8e8e8;
   transition: all 0.2s ease;
 }
 
 .room-tag:active {
-  background-color: #bae7ff;
-  transform: scale(1.05);
+  background-color: #f5f5f5;
 }
 
 .room-bestseller {
-  margin-bottom: 12px;
-  padding: 8px 12px;
-  border-radius: 12px;
-  background-color: #fff7e6;
-  transition: all 0.2s ease;
+  margin-bottom: 6px;
+  border-radius: 4px; /* 减小圆角，显得更干练 */
 }
 
 .room-bestseller:active {
   background-color: #ffd591;
-  transform: scale(1.02);
 }
 
 .room-bestseller-text {
-  font-size: 13px;
+  font-size: 14px;
   color: #ff6b00;
   font-weight: 600;
 }
-
 .room-policy {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-  padding: 8px 12px;
-  border-radius: 12px;
+  gap: 6px;
+  margin-bottom: 6px;
+  padding: 6px 10px;
+  border-radius: 10px;
   background-color: #f5f5f5;
   transition: all 0.2s ease;
 }
@@ -755,32 +834,46 @@
 }
 
 .room-policy-text {
-  font-size: 13px;
+  font-size: 12px;
   color: #333;
 }
 
 .room-policy-divider {
-  font-size: 13px;
+  font-size: 12px;
   color: #999;
 }
 
-.room-benefits {
-  margin-bottom: 8px;
-  padding: 8px 12px;
-  border-radius: 12px;
-  background-color: #f5f5f5;
-  transition: all 0.2s ease;
-}
 
-.room-benefits:active {
+
+.room-description-box:active {
   background-color: #e8e8e8;
   transform: scale(1.02);
 }
 
-.room-benefit {
-  font-size: 13px;
-  color: #666;
+
+.room-description-item:last-child {
+  margin-bottom: 0;
 }
+/* 1. 压缩灰色说明框的整体呼吸感 */
+.room-description-box {
+  margin-bottom: 6px;       /* 减小下方间距 */
+  padding: 6px 10px;        /* 减小上下内边距，保持左右 */
+  background-color: #f8f8f8; /* 颜色可以稍微浅一点，显得更轻盈 */
+  border-radius: 8px;       /* 稍微减小圆角，更干练 */
+}
+
+/* 2. 核心：减小每一行之间的距离 */
+.room-description-item {
+  margin-bottom: 2px;       /* 从原先的 4px 减少到 2px，甚至可以设为 0 */
+}
+
+/* 3. 调整文字自身的占位高度 */
+.room-description-text {
+  font-size: 12px;
+  color: #666;              /* 稍微降低文字对比度，增加商业高级感 */
+  line-height: 1.4;         /* 你之前设为 1.1 太挤，建议用 1.4 配合 margin-bottom 使用 */
+  display: block;
+} 
 
 .room-price-row {
   display: flex;
@@ -793,7 +886,7 @@
 }
 
 .room-price-row:active {
-  transform: scale(1.02);
+  background-color: #f5f5f5;
 }
 
 .room-payment {
@@ -802,17 +895,13 @@
 }
 
 .payment-tag {
-  font-size: 12px;
-  color: #1890ff;
-  background-color: #e6f7ff;
-  padding: 4px 12px;
-  border-radius: 12px;
+  font-size: 13px;
+  color: #666;
+  background-color: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #e8e8e8;
   transition: all 0.2s ease;
-}
-
-.payment-tag:active {
-  background-color: #bae7ff;
-  transform: scale(1.05);
 }
 
 .room-price {
@@ -829,37 +918,37 @@
 }
 
 .original-price {
-  font-size: 13px;
+  font-size: 14px;
   color: #999;
   text-decoration: line-through;
 }
 
 .discount-badge {
-  background: linear-gradient(135deg, #ff6b00, #ff9800);
-  padding: 4px 12px;
-  border-radius: 12px;
+  background: linear-gradient(135deg, #ff9800, #ffc107);
+  padding: 2px 8px;
+  border-radius: 8px;
   transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .discount-badge:active {
-  background: linear-gradient(135deg, #ff9800, #ffc107);
+  background: linear-gradient(135deg, #ffc107, #ffd54f);
   transform: scale(1.05);
 }
 
 .discount-text {
-  font-size: 11px;
+  font-size: 10px;
   color: #fff;
   font-weight: 600;
+  text-align: center;
 }
 
 .price-display {
   display: flex;
   align-items: baseline;
   transition: all 0.2s ease;
-}
-
-.price-display:active {
-  transform: scale(1.05);
 }
 
 .price-label {
@@ -870,47 +959,31 @@
 .price-value {
   font-size: 24px;
   font-weight: 700;
-  color: #ff6b00;
+  color: #1890ff;
   margin: 0 2px;
 }
 
 .room-extra {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 4px;
-  padding: 8px 12px;
-  border-radius: 12px;
-  background-color: #f5f5f5;
-  transition: all 0.2s ease;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding: 6px 0;
+  border-top: 1px solid #f0f0f0;
 }
 
 .room-extra:active {
-  background-color: #e8e8e8;
-  transform: scale(1.02);
+  background-color: #f5f5f5;
 }
 
 .extra-text {
-  font-size: 12px;
+  font-size: 13px;
   color: #ff4d4f;
 }
 
-.extra-badge {
-  background-color: #fff1f0;
-  padding: 4px 12px;
-  border-radius: 12px;
-  transition: all 0.2s ease;
-}
-
-.extra-badge:active {
-  background-color: #ffccc7;
-  transform: scale(1.05);
-}
-
-.extra-badge-text {
-  font-size: 11px;
-  color: #ff4d4f;
+.extra-arrow {
+  font-size: 13px;
+  color: #999;
 }
 
 .detail-footer {
@@ -964,6 +1037,13 @@
   flex-direction: column;
   align-items: center;
   transition: all 0.2s ease;
+}
+
+.footer-btn:hover {
+  background: linear-gradient(135deg, #e65c00, #ff9800);
+  transform: scale(1.05);
+  border-radius: 16px;
+  box-shadow: 0 6px 16px rgba(255, 107, 0, 0.4);
 }
 
 .footer-btn:active {

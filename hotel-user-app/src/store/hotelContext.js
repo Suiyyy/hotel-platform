@@ -34,19 +34,26 @@ const setStorage = (key, value) => {
 
 export const HotelProvider = ({ children }) => {
   const [hotels, setHotels] = useState(() => {
-    const stored = getStorage('hotels');
-    return stored ? JSON.parse(stored) : mockHotels;
+    // 始终使用最新的mockHotels数据，不使用本地存储
+    return mockHotels;
   });
 
   const [searchParams, setSearchParams] = useState({
     keyword: '',
     checkInDate: '',
-    checkOutDate: ''
+    checkOutDate: '',
+    location: '',
+    priceRange: '1',
+    starRating: '1',
+    brand: '',
+    quickTags: [],
+    recommendedTags: []
   });
 
-  useEffect(() => {
-    setStorage('hotels', JSON.stringify(hotels));
-  }, [hotels]);
+  // 注释掉自动存储，确保始终使用最新的mockHotels数据
+  // useEffect(() => {
+  //   setStorage('hotels', JSON.stringify(hotels));
+  // }, [hotels]);
 
   const getApprovedOnlineHotels = () => {
     return hotels.filter(h => h.status === 'approved' && h.isOnline);
@@ -97,6 +104,13 @@ export const HotelProvider = ({ children }) => {
     setSearchParams(params);
   };
 
+  const updateSearchParams = (params) => {
+    setSearchParams(prevParams => ({
+      ...prevParams,
+      ...params
+    }));
+  };
+
   const value = {
     hotels,
     searchParams,
@@ -106,7 +120,8 @@ export const HotelProvider = ({ children }) => {
     updateHotel,
     updateHotelStatus,
     toggleHotelOnline,
-    searchHotels
+    searchHotels,
+    updateSearchParams
   };
 
   return (

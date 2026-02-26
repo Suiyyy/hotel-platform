@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { View, Text, Input, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
+import { useHotelStore } from '../../store/hotelContext';
 import './index.scss';
 
 const CitySelectPage = () => {
+  const { updateSearchParams } = useHotelStore();
   const [cities, setCities] = useState([
+    { id: 0, name: '不选择城市', pinyin: 'buxuanchengshi' },
     { id: 1, name: '北京', pinyin: 'beijing' },
     { id: 2, name: '上海', pinyin: 'shanghai' },
     { id: 3, name: '广州', pinyin: 'guangzhou' },
@@ -37,7 +40,19 @@ const CitySelectPage = () => {
   }, [searchText, cities]);
 
   const handleCitySelect = (cityName) => {
-    Taro.setStorageSync('selectedCity', cityName);
+    if (cityName === '不选择城市') {
+      Taro.removeStorageSync('selectedCity');
+      // 清除搜索参数中的location
+      if (updateSearchParams) {
+        updateSearchParams({ location: '' });
+      }
+    } else {
+      Taro.setStorageSync('selectedCity', cityName);
+      // 更新搜索参数中的location
+      if (updateSearchParams) {
+        updateSearchParams({ location: cityName });
+      }
+    }
     Taro.navigateBack();
   };
 

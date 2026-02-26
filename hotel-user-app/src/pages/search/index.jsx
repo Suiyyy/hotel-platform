@@ -20,10 +20,12 @@ const SearchPage = () => {
   const [selectedRecommendedTags, setSelectedRecommendedTags] = useState([]);
   const [cityDropdownVisible, setCityDropdownVisible] = useState(false);
   const [guestsDropdownVisible, setGuestsDropdownVisible] = useState(false);
+  const [priceFilterVisible, setPriceFilterVisible] = useState(false);
   const [locationInfo, setLocationInfo] = useState('');
   const [isLocated, setIsLocated] = useState(false);
   
   const cities = [
+    { id: 0, name: '不选择城市' },
     { id: 1, name: '北京' },
     { id: 2, name: '上海' },
     { id: 3, name: '广州' },
@@ -35,7 +37,7 @@ const SearchPage = () => {
     { id: 9, name: '武汉' },
     { id: 10, name: '西安' }
   ];
-  const { searchHotels } = useHotelStore();
+  const { searchHotels, updateSearchParams } = useHotelStore();
 
   const tabs = [
     { key: 'domestic', label: '国内' },
@@ -102,10 +104,18 @@ const SearchPage = () => {
       return;
     }
     
+    // 处理不选择城市的情况
+    const searchLocation = location === '不选择城市' ? '' : location;
+    
     searchHotels({ 
       keyword, 
       checkInDate,
-      checkOutDate 
+      checkOutDate,
+      location: searchLocation,
+      priceRange: selectedPriceRange,
+      starRating: selectedStarRating,
+      quickTags: selectedQuickTags,
+      recommendedTags: selectedRecommendedTags
     });
     Taro.navigateTo({
       url: '/pages/list/index'
@@ -168,7 +178,19 @@ const SearchPage = () => {
   const handleCitySelect = (cityName) => {
     setLocation(cityName);
     setCityDropdownVisible(false);
-    Taro.setStorageSync('selectedCity', cityName);
+    if (cityName === '不选择城市') {
+      Taro.removeStorageSync('selectedCity');
+      // 清除搜索参数中的location
+      if (updateSearchParams) {
+        updateSearchParams({ location: '' });
+      }
+    } else {
+      Taro.setStorageSync('selectedCity', cityName);
+      // 更新搜索参数中的location
+      if (updateSearchParams) {
+        updateSearchParams({ location: cityName });
+      }
+    }
   };
   
   const handleMyLocationClick = () => {
@@ -233,10 +255,45 @@ const SearchPage = () => {
     Taro.setStorageSync('selectedGuests', guestsData);
   };
 
+  const priceRanges = [
+    { id: '1', label: '不限价格' },
+    { id: '2', label: '¥0-300' },
+    { id: '3', label: '¥301-500' },
+    { id: '4', label: '¥501-800' },
+    { id: '5', label: '¥801-1200' },
+    { id: '6', label: '¥1201+' }
+  ];
+
+  const starRatings = [
+    { id: '1', label: '不限星级' },
+    { id: '2', label: '5星/豪华' },
+    { id: '3', label: '4星/高档' },
+    { id: '4', label: '3星/舒适' },
+    { id: '5', label: '2星/经济' }
+  ];
+
+  const [selectedPriceRange, setSelectedPriceRange] = useState('1');
+  const [selectedStarRating, setSelectedStarRating] = useState('1');
+
   const handlePriceFilterClick = () => {
-    // 实际功能：打开价格筛选器
-    Taro.navigateTo({
-      url: '/pages/price-filter/index'
+    setPriceFilterVisible(!priceFilterVisible);
+  };
+
+  const handlePriceRangeSelect = (priceRangeId) => {
+    setSelectedPriceRange(priceRangeId);
+  };
+
+  const handleStarRatingSelect = (starRatingId) => {
+    setSelectedStarRating(starRatingId);
+  };
+
+  const handlePriceFilterConfirm = () => {
+    setPriceFilterVisible(false);
+    // 这里可以添加价格和星级筛选逻辑
+    Taro.showToast({
+      title: '筛选条件已应用',
+      icon: 'success',
+      duration: 1000
     });
   };
 
@@ -265,15 +322,16 @@ const SearchPage = () => {
   const handleTabClick = (tabKey) => {
     setActiveTab(tabKey);
     // 实际功能：根据标签类型导航到不同页面或筛选结果
-    if (tabKey === 'homestay') {
-      Taro.navigateTo({
-        url: '/pages/list/index?type=homestay'
-      });
-    } else if (tabKey === 'hourly') {
-      Taro.navigateTo({
-        url: '/pages/list/index?type=hourly'
-      });
-    }
+    // 暂时不跳转页面，只更新标签状态
+    // if (tabKey === 'homestay') {
+    //   Taro.navigateTo({
+    //     url: '/pages/list/index?type=homestay'
+    //   });
+    // } else if (tabKey === 'hourly') {
+    //   Taro.navigateTo({
+    //     url: '/pages/list/index?type=hourly'
+    //   });
+    // }
   };
 
   return (
@@ -528,12 +586,66 @@ const SearchPage = () => {
             )}
           </View>
           <View className="guests-divider" />
-          <View 
-            className="price-filter" 
-            onClick={handlePriceFilterClick}
-            onTap={handlePriceFilterClick}
-          >
-            <Text className="price-filter-text">价格/星级</Text>
+          <View className="price-filter-wrapper">
+            <View 
+              className="price-filter" 
+              onClick={handlePriceFilterClick}
+              onTap={handlePriceFilterClick}
+            >
+              <Text className="price-filter-text">价格/星级</Text>
+              <Text className={`price-filter-arrow ${priceFilterVisible ? 'arrow-up' : ''}`}>▼</Text>
+            </View>
+            
+            {/* Price filter dropdown */}
+            {priceFilterVisible && (
+              <View className="price-filter-dropdown">
+                <View className="price-filter-content">
+                  <View className="filter-section">
+                    <Text className="filter-section-title">价格范围</Text>
+                    {priceRanges.map((range) => (
+                      <View 
+                        key={range.id} 
+                        className={`filter-option ${selectedPriceRange === range.id ? 'filter-option-selected' : ''}`}
+                        onClick={() => handlePriceRangeSelect(range.id)}
+                        onTap={() => handlePriceRangeSelect(range.id)}
+                      >
+                        <Text className="filter-option-text">{range.label}</Text>
+                        {selectedPriceRange === range.id && (
+                          <Text className="filter-option-check">✓</Text>
+                        )}
+                      </View>
+                    ))}
+                  </View>
+                  
+                  <View className="filter-section">
+                    <Text className="filter-section-title">酒店星级</Text>
+                    {starRatings.map((rating) => (
+                      <View 
+                        key={rating.id} 
+                        className={`filter-option ${selectedStarRating === rating.id ? 'filter-option-selected' : ''}`}
+                        onClick={() => handleStarRatingSelect(rating.id)}
+                        onTap={() => handleStarRatingSelect(rating.id)}
+                      >
+                        <Text className="filter-option-text">{rating.label}</Text>
+                        {selectedStarRating === rating.id && (
+                          <Text className="filter-option-check">✓</Text>
+                        )}
+                      </View>
+                    ))}
+                  </View>
+                  
+                  <View className="price-filter-confirm-btn-wrapper">
+                    <Button 
+                      className="price-filter-confirm-btn" 
+                      onClick={handlePriceFilterConfirm}
+                      onTap={handlePriceFilterConfirm}
+                    >
+                      确定
+                    </Button>
+                  </View>
+                </View>
+              </View>
+            )}
           </View>
         </View>
 

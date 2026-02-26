@@ -2,12 +2,18 @@ import { useState, useEffect } from 'react';
 import { View, Text, Image, ScrollView, Button, Swiper, SwiperItem } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useHotelStore } from '../../store/hotelContext';
+import Calendar from '../../components/Calendar';
 import './index.scss';
 
 const DetailPage = () => {
   const [hotel, setHotel] = useState(null);
-  const [currentTab, setCurrentTab] = useState('today');
   const [isFavorite, setIsFavorite] = useState(false);
+  const [selectedRoomTab, setSelectedRoomTab] = useState(0);
+  const [calendarVisible, setCalendarVisible] = useState(false);
+  const [checkInDate, setCheckInDate] = useState('2026-02-25');
+  const [checkOutDate, setCheckOutDate] = useState('2026-02-26');
+  const [nights, setNights] = useState(1);
+  const [selectedRoom, setSelectedRoom] = useState(null);
   const router = Taro.getCurrentInstance().router;
   const { getHotelById } = useHotelStore();
 
@@ -120,10 +126,28 @@ const DetailPage = () => {
   };
 
   const handleDateDisplay = () => {
-    // 实际功能：选择日期
-    Taro.navigateTo({
-      url: '/pages/date-select/index'
-    });
+    // 实际功能：显示日历选择器
+    setCalendarVisible(true);
+  };
+
+  const handleCalendarClose = () => {
+    setCalendarVisible(false);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    return `${month}月${day}日`;
+  };
+
+  const handleDateSelect = (checkIn, checkOut, nightCount) => {
+    // 实际功能：处理日期选择
+    setCheckInDate(checkIn);
+    setCheckOutDate(checkOut);
+    setNights(nightCount);
+    setCalendarVisible(false);
   };
 
   const handleGuestsSelector = () => {
@@ -133,14 +157,8 @@ const DetailPage = () => {
     });
   };
 
-  const handleRoomTab = (tab) => {
-    // 实际功能：切换房间标签
-    Taro.showToast({
-      title: `已选择${tab}`,
-      icon: 'success',
-      duration: 1000
-    });
-    // 这里可以添加房间筛选逻辑
+  const handleRoomTab = (index) => {
+    setSelectedRoomTab(index);
   };
 
   const handleRoomFilter = () => {
@@ -159,11 +177,6 @@ const DetailPage = () => {
 
   const handleRoomTag = (tag) => {
     // 实际功能：筛选带特定标签的房间
-    Taro.showToast({
-      title: `已筛选${tag}房间`,
-      icon: 'success',
-      duration: 1000
-    });
     // 这里可以添加筛选逻辑
   };
 
@@ -176,11 +189,6 @@ const DetailPage = () => {
 
   const handleRoomBenefit = (benefit) => {
     // 实际功能：查看权益详情
-    Taro.showToast({
-      title: benefit,
-      icon: 'success',
-      duration: 1500
-    });
   };
 
   const handleRoomPrice = (roomId) => {
@@ -190,11 +198,20 @@ const DetailPage = () => {
     });
   };
 
+  const handleRoomSelect = (room) => {
+    // 实际功能：选择房型
+    setSelectedRoom(room);
+  };
+
   const handleFooterBtn = () => {
     // 实际功能：预订房间
-    Taro.navigateTo({
-      url: `/pages/book/index?hotelId=${hotel.id}`
-    });
+    if (selectedRoom) {
+      Taro.navigateTo({
+        url: `/pages/book/index?hotelId=${hotel.id}&roomId=${selectedRoom.id}`
+      });
+    } else {
+      Taro.showToast({ title: '请先选择房型', icon: 'none' });
+    }
   };
 
   if (!hotel) {
@@ -204,6 +221,9 @@ const DetailPage = () => {
       </View>
     );
   }
+
+  // Sort room types by price from lowest to highest
+  const sortedRoomTypes = [...hotel.roomTypes].sort((a, b) => a.price - b.price);
 
   const hotelImages = [
     hotel.imageUrl,
@@ -283,7 +303,7 @@ const DetailPage = () => {
           <View className="facilities-row">
             <View className="facilities-list">
               {facilityIcons.map((facility, index) => (
-                <View key={index} className="facility-item" onClick={() => Taro.showToast({ title: facility.name, icon: 'none' })} onTap={() => Taro.showToast({ title: facility.name, icon: 'none' })}>
+                <View className="facility-item">
                   <View className="facility-icon">{facility.icon}</View>
                   <Text className="facility-name">{facility.name}</Text>
                 </View>
@@ -297,16 +317,16 @@ const DetailPage = () => {
 
           <View className="rating-section">
             <View className="rating-left">
-              <View className="rating-score-box" onClick={() => Taro.showToast({ title: '评分详情', icon: 'none' })} onTap={() => Taro.showToast({ title: '评分详情', icon: 'none' })}>
+              <View className="rating-score-box">
                 <Text className="rating-score">{hotel.rating.toFixed(1)}</Text>
                 <Text className="rating-label">超棒</Text>
               </View>
-              <Text className="rating-reviews" onClick={() => Taro.showToast({ title: '查看全部评价', icon: 'none' })} onTap={() => Taro.showToast({ title: '查看全部评价', icon: 'none' })}>{Math.floor(hotel.rating * 10000)}条</Text>
-              <Text className="rating-quote" onClick={() => Taro.showToast({ title: '查看全部评价', icon: 'none' })} onTap={() => Taro.showToast({ title: '查看全部评价', icon: 'none' })}>“超大椭圆形浴缸，景色相当不错”</Text>
+              <Text className="rating-reviews">{Math.floor(hotel.rating * 10000)}条</Text>
+              <Text className="rating-quote">"超大椭圆形浴缸，景色相当不错"</Text>
             </View>
             <View className="rating-right">
               <View className="location-info">
-                <Text className="location-text" onClick={() => Taro.showToast({ title: '地址详情', icon: 'none' })} onTap={() => Taro.showToast({ title: '地址详情', icon: 'none' })}>距上海路·省中医院地铁站步行200米｜秦淮区汉中路101号金鹰新街口店B座</Text>
+                <Text className="location-text">距上海路·省中医院地铁站步行200米｜秦淮区汉中路101号金鹰新街口店B座</Text>
                 <View className="location-map" onClick={handleLocationMap} onTap={handleLocationMap}>
                   <Text className="location-map-icon">📍</Text>
                   <Text className="location-map-text">地图</Text>
@@ -325,32 +345,9 @@ const DetailPage = () => {
           </View>
 
           <View className="date-section">
-            <View className="date-tabs">
-              <View 
-                className={`date-tab ${currentTab === 'today' ? 'date-tab-active' : ''}`}
-                onClick={() => setCurrentTab('today')}
-                onTap={() => setCurrentTab('today')}
-              >
-                <Text className="date-tab-text">今天</Text>
-              </View>
-              <View 
-                className={`date-tab ${currentTab === 'tomorrow' ? 'date-tab-active' : ''}`}
-                onClick={() => setCurrentTab('tomorrow')}
-                onTap={() => setCurrentTab('tomorrow')}
-              >
-                <Text className="date-tab-text">明天</Text>
-              </View>
-              <View 
-                className={`date-tab ${currentTab === 'lowprice' ? 'date-tab-active' : ''}`}
-                onClick={() => setCurrentTab('lowprice')}
-                onTap={() => setCurrentTab('lowprice')}
-              >
-                <Text className="date-tab-text">看低价</Text>
-              </View>
-            </View>
             <View className="date-display" onClick={handleDateDisplay} onTap={handleDateDisplay}>
-              <Text className="date-text">2月25日 - 2月26日</Text>
-              <Text className="nights-text">共1晚</Text>
+              <Text className="date-text">{formatDate(checkInDate)} - {formatDate(checkOutDate)}</Text>
+              <Text className="nights-text">共{nights}晚</Text>
             </View>
             <View className="guests-selector" onClick={handleGuestsSelector} onTap={handleGuestsSelector}>
               <View className="guest-count">
@@ -370,7 +367,12 @@ const DetailPage = () => {
 
           <View className="room-tabs">
             {roomTabs.map((tab, index) => (
-              <View key={index} className={`room-tab ${index === 0 ? 'room-tab-active' : ''}`} onClick={() => handleRoomTab(tab)} onTap={() => handleRoomTab(tab)}>
+              <View 
+                key={index} 
+                className={`room-tab ${selectedRoomTab === index ? 'room-tab-active' : ''}`}
+                onClick={() => handleRoomTab(index)}
+                onTap={() => handleRoomTab(index)}
+              >
                 <Text className="room-tab-text">{tab}</Text>
               </View>
             ))}
@@ -380,61 +382,86 @@ const DetailPage = () => {
             </View>
           </View>
 
-          {hotel.roomTypes.map((room) => (
-            <View key={room.id} className="room-item">
-              <View className="room-header">
-                <Text className="room-name" onClick={() => Taro.showToast({ title: room.name, icon: 'none' })} onTap={() => Taro.showToast({ title: room.name, icon: 'none' })}>{room.name}-云端尽览金陵城</Text>
-                <View className="room-expand" onClick={() => handleRoomExpand(room.id)} onTap={() => handleRoomExpand(room.id)}>
-                  <Text className="room-expand-icon">ⓘ</Text>
+          {sortedRoomTypes.map((room) => (
+            <View 
+              key={room.id} 
+              className={`room-item ${selectedRoom?.id === room.id ? 'room-item-selected' : ''}`}
+              onClick={() => handleRoomSelect(room)}
+              onTap={() => handleRoomSelect(room)}
+            >
+              <View className="room-left">
+                <View className="room-image-wrapper">
+                  <Image className="room-image" src={hotel.imageUrl} mode="aspectFill" />
+                  <View className="room-badge">
+                    <Text className="room-badge-count">5</Text>
+                  </View>
+                  {selectedRoom?.id === room.id && (
+                    <View className="room-selected-badge">
+                      <Text className="room-selected-text">✓</Text>
+                    </View>
+                  )}
                 </View>
               </View>
-              <View className="room-image-wrapper" onClick={() => Taro.showToast({ title: '查看房间图片', icon: 'none' })} onTap={() => Taro.showToast({ title: '查看房间图片', icon: 'none' })}>
-                <Image className="room-image" src={hotel.imageUrl} mode="aspectFill" />
-                <View className="room-badge" onClick={(e) => { e.stopPropagation(); Taro.showToast({ title: '仅剩5间', icon: 'none' }); }} onTap={(e) => { e.stopPropagation(); Taro.showToast({ title: '仅剩5间', icon: 'none' }); }}>
-                  <Text className="room-badge-count">5</Text>
+              <View className="room-right">
+                <View className="room-header">
+                  <Text className="room-name">{room.name}-云端尽览金陵城</Text>
+                  <View className="room-expand" onClick={(e) => {
+                    e.stopPropagation();
+                    handleRoomExpand(room.id);
+                  }} onTap={(e) => {
+                    e.stopPropagation();
+                    handleRoomExpand(room.id);
+                  }}>
+                    <Text className="room-expand-icon">ⓘ</Text>
+                  </View>
                 </View>
-              </View>
-              <View className="room-tags">
-                <View className="room-tag" onClick={() => handleRoomTag('城景')} onTap={() => handleRoomTag('城景')}>城景</View>
-                <View className="room-tag" onClick={() => handleRoomTag('浴缸')} onTap={() => handleRoomTag('浴缸')}>浴缸</View>
-                <View className="room-tag" onClick={() => handleRoomTag('部分禁烟')} onTap={() => handleRoomTag('部分禁烟')}>部分禁烟</View>
-              </View>
-              <View className="room-bestseller" onClick={() => Taro.showToast({ title: '热门套餐', icon: 'none' })} onTap={() => Taro.showToast({ title: '热门套餐', icon: 'none' })}>
-                <Text className="room-bestseller-text">本店套餐销量No.1</Text>
-              </View>
-              <View className="room-policy" onClick={handleRoomPolicy} onTap={handleRoomPolicy}>
-                <Text className="room-policy-text">无早餐</Text>
-                <Text className="room-policy-divider">|</Text>
-                <Text className="room-policy-text">入住当天18:00前可免费取消</Text>
-              </View>
-              <View className="room-benefits" onClick={() => handleRoomBenefit('迷你吧首轮畅饮 1份')} onTap={() => handleRoomBenefit('迷你吧首轮畅饮 1份')}>
-                <Text className="room-benefit">迷你吧首轮畅饮 1份</Text>
-              </View>
-              <View className="room-benefits" onClick={() => handleRoomBenefit('满园春中餐厅9折优惠')} onTap={() => handleRoomBenefit('满园春中餐厅9折优惠')}>
-                <Text className="room-benefit">满园春中餐厅9折优惠（不适用日期：2026.2.16-2026.2...</Text>
-              </View>
-              <View className="room-price-row" onClick={() => handleRoomPrice(room.id)} onTap={() => handleRoomPrice(room.id)}>
-                <View className="room-payment">
-                  <View className="payment-tag">在线付</View>
-                  <View className="payment-tag">立即确认</View>
+                <View className="room-desc">
+                  <Text className="room-desc-text">1张1.8米大床 48m² 2人入住 30-33,35-37层</Text>
                 </View>
-                <View className="room-price">
-                  <View className="discount-info">
-                    <Text className="original-price">¥999</Text>
-                    <View className="discount-badge">
-                      <Text className="discount-text">7.0折</Text>
+                <View className="room-tags">
+                  <View className="room-tag">城景</View>
+                  <View className="room-tag">浴缸</View>
+                  <View className="room-tag">部分禁烟</View>
+                </View>
+                <View className="room-bestseller">
+                  <Text className="room-bestseller-text">本店套餐销量No.1</Text>
+                </View>
+                <View className="room-description-box" onClick={(e) => {
+                  e.stopPropagation();
+                  // 可以添加点击查看详情的功能
+                }} onTap={(e) => {
+                  e.stopPropagation();
+                  // 可以添加点击查看详情的功能
+                }}>
+                  <Text className="room-description-text">无早餐 | 入住当天18:00前可免费取消 | 迷你吧首轮畅饮 1份 | 满园春中餐厅9折优惠（不适用日期：2026.2.16-2026.2....</Text>
+                </View>
+                <View className="room-price-row" onClick={(e) => {
+                  e.stopPropagation();
+                  handleRoomPrice(room.id);
+                }} onTap={(e) => {
+                  e.stopPropagation();
+                  handleRoomPrice(room.id);
+                }}>
+                  <View className="room-payment">
+                    <View className="payment-tag">在线付</View>
+                    <View className="payment-tag">立即确认</View>
+                  </View>
+                  <View className="room-price">
+                    <View className="discount-info">
+                      <Text className="original-price">¥999</Text>
+                      <View className="discount-badge">
+                        <Text className="discount-text">7.0折</Text>
+                      </View>
+                    </View>
+                    <View className="price-display">
+                      <Text className="price-label">¥</Text>
+                      <Text className="price-value">{room.price}</Text>
                     </View>
                   </View>
-                  <View className="price-display">
-                    <Text className="price-label">¥</Text>
-                    <Text className="price-value">{room.price}</Text>
-                  </View>
                 </View>
-              </View>
-              <View className="room-extra" onClick={() => Taro.showToast({ title: '专享优惠', icon: 'none' })} onTap={() => Taro.showToast({ title: '专享优惠', icon: 'none' })}>
-                <Text className="extra-text">一起订专享 | 积分已抵¥25</Text>
-                <View className="extra-badge" onClick={(e) => { e.stopPropagation(); Taro.showToast({ title: '4项优惠', icon: 'none' }); }} onTap={(e) => { e.stopPropagation(); Taro.showToast({ title: '4项优惠', icon: 'none' }); }}>
-                  <Text className="extra-badge-text">4项优</Text>
+                <View className="room-extra">
+                  <Text className="extra-text">一起订专享 | 门店首单 | 优惠300</Text>
+                  <Text className="extra-arrow">&gt;</Text>
                 </View>
               </View>
             </View>
@@ -443,15 +470,21 @@ const DetailPage = () => {
       </ScrollView>
 
       <View className="detail-footer">
-        <View className="footer-left" onClick={() => Taro.showToast({ title: '价格详情', icon: 'none' })} onTap={() => Taro.showToast({ title: '价格详情', icon: 'none' })}>
+        <View className="footer-left">
           <Text className="footer-price-label">¥</Text>
-          <Text className="footer-price-value">{hotel.price}</Text>
+          <Text className="footer-price-value">{selectedRoom ? selectedRoom.price * nights : hotel?.price || 0}</Text>
         </View>
         <Button className="footer-btn" onClick={handleFooterBtn} onTap={handleFooterBtn}>
-          <Text className="footer-btn-text">1间 · 门店首单</Text>
+          <Text className="footer-btn-text">1间 · {nights}晚 · 门店首单</Text>
           <Text className="footer-btn-text">优惠¥300</Text>
         </Button>
       </View>
+
+      <Calendar
+        visible={calendarVisible}
+        onClose={handleCalendarClose}
+        onDateSelect={handleDateSelect}
+      />
     </View>
   );
 };
