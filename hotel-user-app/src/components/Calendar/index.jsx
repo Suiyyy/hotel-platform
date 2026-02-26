@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
+import Taro from '@tarojs/taro';
 import './index.scss';
 
 const Calendar = ({ visible, onClose, onDateSelect, checkInDate, checkOutDate }) => {
   const [selectedStart, setSelectedStart] = useState(null);
   const [selectedEnd, setSelectedEnd] = useState(null);
+  const scrollViewRef = useRef(null);
 
   useEffect(() => {
     if (visible) {
@@ -14,6 +16,11 @@ const Calendar = ({ visible, onClose, onDateSelect, checkInDate, checkOutDate })
       tomorrow.setDate(tomorrow.getDate() + 1);
       setSelectedStart(today);
       setSelectedEnd(tomorrow);
+      
+      // Scroll to today's date
+      setTimeout(() => {
+        scrollToDate(today);
+      }, 100);
     }
   }, [visible]);
 
@@ -62,6 +69,22 @@ const Calendar = ({ visible, onClose, onDateSelect, checkInDate, checkOutDate })
     return date < today;
   };
 
+  const scrollToDate = (date) => {
+    if (scrollViewRef.current) {
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const monthElement = document.getElementById(`month-${year}-${month}`);
+      if (monthElement) {
+        const calendarContainer = scrollViewRef.current;
+        const containerHeight = calendarContainer.clientHeight;
+        const elementTop = monthElement.offsetTop;
+        const elementHeight = monthElement.offsetHeight;
+        const scrollTop = elementTop - (containerHeight / 2) + (elementHeight / 2);
+        calendarContainer.scrollTop = Math.max(0, scrollTop);
+      }
+    }
+  };
+
   const getNights = () => {
     if (!selectedStart || !selectedEnd) return 0;
     const diffTime = Math.abs(selectedEnd - selectedStart);
@@ -97,11 +120,14 @@ const Calendar = ({ visible, onClose, onDateSelect, checkInDate, checkOutDate })
         setSelectedEnd(selectedDate);
       }
     }
+
+    // Scroll to the selected date
+    scrollToDate(selectedDate);
   };
 
   const handleComplete = () => {
     if (selectedStart && selectedEnd) {
-      onDateSelect(formatDate(selectedStart), formatDate(selectedEnd));
+      onDateSelect(formatDate(selectedStart), formatDate(selectedEnd), getNights());
       onClose();
     }
   };
@@ -162,7 +188,7 @@ const Calendar = ({ visible, onClose, onDateSelect, checkInDate, checkOutDate })
               <Text className="select-label">离店</Text>
               {selectedStart && selectedEnd && (
                 <View className="nights-bubble">
-                  <Text className="nights-bubble-text">{getNights()}晚</Text>
+                  <Text className="nights-bubble-text">共{getNights()}晚</Text>
                 </View>
               )}
             </>
@@ -210,6 +236,7 @@ const Calendar = ({ visible, onClose, onDateSelect, checkInDate, checkOutDate })
         <ScrollView 
           className="calendar-scroll"
           scrollY
+          ref={scrollViewRef}
         >
           <View className="calendar-months">
             {generateMonths().map(month => renderMonth(month))}
