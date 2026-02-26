@@ -20,21 +20,39 @@ export function setupWebSocket(server: Server): WebSocketServer {
   return wss
 }
 
-export function broadcastPriceUpdate(hotelId: string, newPrice: number): void {
+function broadcast(data: Record<string, unknown>): void {
   if (!wss) return
+  const msg = JSON.stringify(data)
+  wss.clients.forEach((client: WebSocket) => {
+    if (client.readyState === 1) client.send(msg)
+  })
+}
 
-  const message: IPriceUpdateMessage = {
+export function broadcastPriceUpdate(hotelId: string, newPrice: number): void {
+  broadcast({
     type: 'PRICE_UPDATE',
     hotelId,
     newPrice,
     timestamp: new Date().toISOString()
-  }
+  })
+}
 
-  const data = JSON.stringify(message)
+export function broadcastNewHotel(hotel: { id: string; nameCn: string; merchantId?: string }): void {
+  broadcast({
+    type: 'NEW_HOTEL',
+    hotelId: hotel.id,
+    hotelName: hotel.nameCn,
+    timestamp: new Date().toISOString()
+  })
+}
 
-  wss.clients.forEach((client: WebSocket) => {
-    if (client.readyState === 1) {
-      client.send(data)
-    }
+export function broadcastAuditResult(hotel: { id: string; nameCn: string; status: string; rejectReason?: string }): void {
+  broadcast({
+    type: 'AUDIT_RESULT',
+    hotelId: hotel.id,
+    hotelName: hotel.nameCn,
+    status: hotel.status,
+    rejectReason: hotel.rejectReason || '',
+    timestamp: new Date().toISOString()
   })
 }

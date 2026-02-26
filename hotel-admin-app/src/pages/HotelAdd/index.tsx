@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Form, Input, InputNumber, Select, Button, Card, message, Space, Divider, Row, Col, Upload, Checkbox } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
+import { useNavigate } from 'react-router-dom'
 import { useHotelStore } from '../../store/hotelContext'
 import { getBaseUrl, aiPolish } from '../../services/hotelApi'
 import type { IRoomType } from '../../types/hotel'
@@ -33,10 +34,14 @@ const HotelAddPage = () => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [polishing, setPolishing] = useState(false)
-  const [fileList, setFileList] = useState<UploadFile[]>([])
-  const [roomTypes, setRoomTypes] = useState<IRoomType[]>([
-    { id: '1', name: '', price: 0, area: 0, bedType: '' }
+  const [fileList, setFileList] = useState<UploadFile[]>([
+    { uid: '-1', name: 'default.jpg', status: 'done', url: 'https://picsum.photos/seed/wuhan1/400/300' }
   ])
+  const [roomTypes, setRoomTypes] = useState<IRoomType[]>([
+    { id: '1', name: '豪华大床房', price: 668, area: 42, bedType: '1.8米大床' },
+    { id: '2', name: '商务双床房', price: 728, area: 45, bedType: '2张1.2米床' }
+  ])
+  const navigate = useNavigate()
   const { addHotel } = useHotelStore()
 
   const handleSubmit = async (values: IHotelFormValues) => {
@@ -51,10 +56,11 @@ const HotelAddPage = () => {
       }
 
       await addHotel(hotelData)
-      message.success('酒店信息录入成功，等待审核')
+      message.success('录入成功，等待审核')
       form.resetFields()
       setFileList([])
       setRoomTypes([{ id: '1', name: '', price: 0, area: 0, bedType: '' }])
+      navigate('/my-hotels')
     } catch {
       message.error('录入失败')
     } finally {
@@ -124,10 +130,16 @@ const HotelAddPage = () => {
           onFinish={handleSubmit}
           size="large"
           initialValues={{
-            star: 3,
-            price: 200,
-            phone: '010-12345678',
-            openDate: '2024-01-01'
+            nameCn: '武汉光谷希尔顿酒店',
+            nameEn: 'Wuhan Optics Valley Hilton',
+            address: '湖北省武汉市东湖高新区光谷大道77号',
+            star: 5,
+            price: 668,
+            phone: '027-88886666',
+            openDate: '2023-06-01',
+            imageUrl: 'https://picsum.photos/seed/wuhan1/400/300',
+            description: '位于光谷核心商圈，毗邻光谷广场，交通便利，设施齐全',
+            facilities: ['免费WiFi', '停车场', '健身房', '游泳池', '餐厅', '商务中心']
           }}
         >
           <Row gutter={16}>

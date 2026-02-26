@@ -1,16 +1,22 @@
-import { useState, useEffect } from 'react'
-import { Table, Button, Tag, Card, message, Space, Image, Popconfirm } from 'antd'
+import { useState, useEffect, useRef } from 'react'
+import { Table, Button, Tag, Card, message, Space, Image, Popconfirm, notification } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import { EditOutlined, DeleteOutlined, ReloadOutlined } from '@ant-design/icons'
+import { EditOutlined, DeleteOutlined, ReloadOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
-import { fetchMyHotels, deleteHotel } from '../../services/hotelApi'
+import { fetchMyHotels, deleteHotel, getBaseUrl } from '../../services/hotelApi'
 import type { IHotel } from '../../types/hotel'
 import './index.css'
+
+const resolveImageUrl = (url: string) => {
+  if (!url) return ''
+  return url.startsWith('/') ? `${getBaseUrl()}${url}` : url
+}
 
 const HotelListPage = () => {
   const [myHotels, setMyHotels] = useState<IHotel[]>([])
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const wsRef = useRef<WebSocket | null>(null)
 
   const loadHotels = async () => {
     setLoading(true)
@@ -26,6 +32,33 @@ const HotelListPage = () => {
 
   useEffect(() => {
     loadHotels()
+
+    const wsUrl = getBaseUrl().replace(/^http/, 'ws')
+    const ws = new WebSocket(wsUrl)
+    wsRef.current = ws
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data)
+        if (data.type === 'AUDIT_RESULT') {
+          const isApproved = data.status === 'approved'
+          notification[isApproved ? 'success' : 'error']({
+            message: isApproved ? '审核通过' : '审核被拒绝',
+            description: isApproved
+              ? `您的「${data.hotelName}」已通过审核`
+              : `您的「${data.hotelName}」被拒绝：${data.rejectReason}`,
+            icon: isApproved
+              ? <CheckCircleOutlined style={{ color: '#52c41a' }} />
+              : <CloseCircleOutlined style={{ color: '#f5222d' }} />,
+            placement: 'topRight',
+            duration: 6,
+          })
+          loadHotels()
+        }
+      } catch { /* ignore */ }
+    }
+
+    return () => { ws.close() }
   }, [])
 
   const handleDelete = async (id: string) => {
@@ -49,7 +82,7 @@ const HotelListPage = () => {
       title: '图片',
       dataIndex: 'imageUrl',
       width: 100,
-      render: (url: string) => <Image width={80} height={60} src={url} style={{ borderRadius: 4, objectFit: 'cover' }} />
+      render: (url: string) => <Image width={80} height={60} src={resolveImageUrl(url)} style={{ borderRadius: 4, objectFit: 'cover' }} />
     },
     { title: '酒店名称', dataIndex: 'nameCn', width: 200 },
     { title: '地址', dataIndex: 'address', ellipsis: true },

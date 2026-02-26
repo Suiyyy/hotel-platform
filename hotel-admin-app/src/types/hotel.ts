@@ -57,4 +57,5 @@ export interface IHotelContextValue {
   updateHotel: (id: string, data: Partial<IHotel>) => Promise<IHotel>
   updateHotelStatus: (id: string, status: IHotel['status'], rejectReason?: string) => Promise<IHotel>
   toggleHotelOnline: (id: string) => Promise<IHotel>
+  refreshHotels: () => Promise<void>
 }

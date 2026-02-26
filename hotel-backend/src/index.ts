@@ -8,7 +8,7 @@ import { getAllHotels, getHotel, saveHotel } from './store.js'
 import { findUserByUsername, createUser } from './userStore.js'
 import { generateToken, authMiddleware } from './middleware/auth.js'
 import { validateHotelCreate, validateHotelPatch } from './middleware/validate.js'
-import { setupWebSocket, broadcastPriceUpdate } from './ws.js'
+import { setupWebSocket, broadcastPriceUpdate, broadcastNewHotel, broadcastAuditResult } from './ws.js'
 import { parseSearchIntent, aiSearchHotels, polishDescription } from './ai.js'
 import type { IHotel } from './types/hotel.js'
 
@@ -159,7 +159,7 @@ app.get('/hotels/mine', authMiddleware, async (req: Request, res: Response, next
   }
 })
 
-app.post('/hotels', validateHotelCreate, async (req: Request, res: Response, next: NextFunction) => {
+app.post('/hotels', authMiddleware, validateHotelCreate, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const payload = (req.body ?? {}) as Partial<IHotel>
     const now = new Date().toISOString()
@@ -174,6 +174,7 @@ app.post('/hotels', validateHotelCreate, async (req: Request, res: Response, nex
       rejectReason: ''
     }
     await saveHotel(newHotel)
+    broadcastNewHotel(newHotel)
     res.status(201).json(newHotel)
   } catch (e) {
     next(e)
@@ -195,6 +196,11 @@ app.patch('/hotels/:id', validateHotelPatch, async (req: Request<{ id: string }>
     // Broadcast price update via WebSocket
     if (patch.price !== undefined && patch.price !== existing.price) {
       broadcastPriceUpdate(id, updated.price)
+    }
+
+    // Broadcast audit result via WebSocket
+    if (patch.status && patch.status !== existing.status) {
+      broadcastAuditResult(updated)
     }
 
     res.json(updated)

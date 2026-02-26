@@ -113,6 +113,13 @@ export const HotelProvider = ({ children }: HotelProviderProps) => {
     return updated
   }
 
+  const refreshHotels = async (): Promise<void> => {
+    try {
+      const remote = await fetchHotels()
+      if (Array.isArray(remote)) setHotels(remote)
+    } catch { /* ignore */ }
+  }
+
   const value: IHotelContextValue = {
     hotels,
     users: [],
@@ -123,7 +130,8 @@ export const HotelProvider = ({ children }: HotelProviderProps) => {
     addHotel,
     updateHotel,
     updateHotelStatus,
-    toggleHotelOnline
+    toggleHotelOnline,
+    refreshHotels
   }
 
   return (

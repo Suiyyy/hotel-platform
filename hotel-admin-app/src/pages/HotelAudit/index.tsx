@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react'
-import { Table, Button, Tag, Modal, Input, message, Space, Card, Popconfirm, Image, Tabs } from 'antd'
+import { useState, useMemo, useEffect, useRef } from 'react'
+import { Table, Button, Tag, Modal, Input, message, Space, Card, Popconfirm, Image, Tabs, notification } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import { CheckOutlined, CloseOutlined, PoweroffOutlined, SearchOutlined } from '@ant-design/icons'
+import { CheckOutlined, CloseOutlined, PoweroffOutlined, SearchOutlined, BellOutlined } from '@ant-design/icons'
 import { useHotelStore } from '../../store/hotelContext'
-import { restoreHotel } from '../../services/hotelApi'
+import { getBaseUrl, fetchHotels } from '../../services/hotelApi'
 import type { IHotel } from '../../types/hotel'
 import './index.css'
 
@@ -17,7 +17,32 @@ const HotelAuditPage = () => {
   const [rejectReason, setRejectReason] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [searchKeyword, setSearchKeyword] = useState('')
-  const { hotels, updateHotelStatus, toggleHotelOnline } = useHotelStore()
+  const { hotels, updateHotelStatus, toggleHotelOnline, refreshHotels } = useHotelStore()
+  const wsRef = useRef<WebSocket | null>(null)
+
+  useEffect(() => {
+    const wsUrl = getBaseUrl().replace(/^http/, 'ws')
+    const ws = new WebSocket(wsUrl)
+    wsRef.current = ws
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data)
+        if (data.type === 'NEW_HOTEL') {
+          notification.info({
+            message: '新酒店待审核',
+            description: `商家提交了「${data.hotelName}」，请及时审核`,
+            icon: <BellOutlined style={{ color: '#faad14' }} />,
+            placement: 'topRight',
+            duration: 5,
+          })
+          refreshHotels()
+        }
+      } catch { /* ignore */ }
+    }
+
+    return () => { ws.close() }
+  }, [])
 
   const filteredHotels = useMemo(() => {
     let list = hotels
@@ -82,13 +107,9 @@ const HotelAuditPage = () => {
     }
   }
 
-  const handleRestore = async (hotelId: string) => {
-    try {
-      await restoreHotel(hotelId)
-      message.success('已恢复上线')
-    } catch {
-      message.error('操作失败')
-    }
+  const resolveImageUrl = (url: string) => {
+    if (!url) return ''
+    return url.startsWith('/') ? `${getBaseUrl()}${url}` : url
   }
 
   const columns: ColumnsType<IHotel> = [
@@ -97,7 +118,7 @@ const HotelAuditPage = () => {
       dataIndex: 'imageUrl',
       width: 120,
       render: (imageUrl: string) => (
-        <Image width={80} height={60} src={imageUrl} style={{ borderRadius: 4, objectFit: 'cover' }} />
+        <Image width={80} height={60} src={resolveImageUrl(imageUrl)} style={{ borderRadius: 4, objectFit: 'cover' }} />
       ),
     },
     { title: '酒店名称', dataIndex: 'nameCn', width: 200 },
@@ -127,7 +148,7 @@ const HotelAuditPage = () => {
           {record.status === 'approved' && (
             <Popconfirm
               title={record.isOnline ? '确定要下线吗？（软删除）' : '确定要上线吗？'}
-              onConfirm={() => record.isOnline ? handleToggleOnline(record.id) : handleRestore(record.id)}
+              onConfirm={() => handleToggleOnline(record.id)}
               okText="确定"
               cancelText="取消"
             >
