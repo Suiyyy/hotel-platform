@@ -7,6 +7,7 @@ import './index.scss';
 
 const ListPage = () => {
   const [sortBy, setSortBy] = useState('recommended');
+  const [sortOrder, setSortOrder] = useState('desc');
   const [displayedHotels, setDisplayedHotels] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -128,9 +129,11 @@ const ListPage = () => {
 
   // 从筛选选项中获取所有标签
   const tagOptions = [];
+  const filterIdToLabel = {};
   filterOptions.forEach(category => {
     category.options.forEach(option => {
       tagOptions.push({ id: option.id, label: option.label });
+      filterIdToLabel[option.id] = option.label;
     });
   });
 
@@ -264,7 +267,7 @@ const ListPage = () => {
     loadHotels(true);
   };
 
-  const loadHotels = (isRefresh = false, overridePointsEnabled = null) => {
+  const loadHotels = (isRefresh = false, overridePointsEnabled = null, overrideFilters = null) => {
     const page = isRefresh ? 1 : currentPage + 1;
     let hotels = getApprovedOnlineHotels();
 
@@ -339,6 +342,45 @@ const ListPage = () => {
       );
     }
 
+    // 应用筛选器筛选
+    const savedFilters = Taro.getStorageSync('selectedFilters') || [];
+    const currentFilters = overrideFilters !== null ? overrideFilters : (searchParams.filters || savedFilters);
+    if (currentFilters && currentFilters.length > 0) {
+      hotels = hotels.filter(h => {
+        return currentFilters.every(filterId => {
+          const filterLabel = filterIdToLabel[filterId];
+          if (!filterLabel) return true;
+          
+          // 检查标签中是否包含筛选内容
+          if (h.tags && h.tags.some(tag => tag.includes(filterLabel))) {
+            return true;
+          }
+          
+          // 检查设施中是否包含筛选内容
+          if (h.facilities && h.facilities.some(facility => facility.includes(filterLabel))) {
+            return true;
+          }
+          
+          // 检查品牌是否匹配
+          if (h.brand && h.brand.includes(filterLabel)) {
+            return true;
+          }
+          
+          // 检查地址中是否包含筛选内容
+          if (h.address && h.address.includes(filterLabel)) {
+            return true;
+          }
+          
+          // 检查描述中是否包含筛选内容
+          if (h.description && h.description.includes(filterLabel)) {
+            return true;
+          }
+          
+          return false;
+        });
+      });
+    }
+
     // 应用积分抵扣
     const isPointsEnabled = overridePointsEnabled !== null ? overridePointsEnabled : pointsEnabled;
     hotels = hotels.map(hotel => {
@@ -377,12 +419,12 @@ const ListPage = () => {
     const sorted = [...hotels];
     switch (sortType) {
       case 'price':
-        return sorted.sort((a, b) => a.price - b.price);
+        return sorted.sort((a, b) => sortOrder === 'asc' ? a.price - b.price : b.price - a.price);
       case 'rating':
       case 'recommended':
-        return sorted.sort((a, b) => b.rating - a.rating);
+        return sorted.sort((a, b) => sortOrder === 'asc' ? a.rating - b.rating : b.rating - a.rating);
       case 'distance':
-        return sorted.sort((a, b) => a.distance - b.distance);
+        return sorted.sort((a, b) => sortOrder === 'asc' ? a.distance - b.distance : b.distance - a.distance);
       default:
         return sorted;
     }
@@ -603,6 +645,7 @@ const ListPage = () => {
 
   const handleFilterConfirm = () => {
     setFilterVisible(false);
+    
     // 应用筛选
     if (updateSearchParams) {
       updateSearchParams({ filters: selectedFilters });
@@ -611,8 +654,8 @@ const ListPage = () => {
     // 保存筛选参数到本地存储
     Taro.setStorageSync('selectedFilters', selectedFilters);
     
-    // 重新加载酒店列表
-    loadHotels(true);
+    // 重新加载酒店列表，直接传递最新的筛选值
+    loadHotels(true, null, selectedFilters);
     
     Taro.showToast({
       title: '筛选条件已应用',
@@ -933,28 +976,36 @@ const ListPage = () => {
                 )}
               </View>
             ) : (
-              <View
-            className={`sort-tab ${sortBy === option.key ? 'sort-tab-active' : ''}`}
-            onClick={() => {
-              if (option.key === 'filter') {
-                handleFilterClick();
-              } else {
-                setSortBy(option.key);
-              }
-            }}
-            onTap={() => {
-              if (option.key === 'filter') {
-                handleFilterClick();
-              } else {
-                setSortBy(option.key);
-              }
-            }}
-          >
-            <Text className="sort-tab-text">{option.label}</Text>
-            {option.key === 'filter' && (
-              <Text className={`price-filter-arrow ${filterVisible ? 'arrow-up' : ''}`}>▼</Text>
-            )}
-          </View>
+              <View className="sort-tab-wrapper">
+                <View
+                  className={`sort-tab ${sortBy === option.key ? 'sort-tab-active' : ''}`}
+                  onClick={() => {
+                    setSortBy(option.key);
+                    loadHotels(true);
+                  }}
+                  onTap={() => {
+                    setSortBy(option.key);
+                    loadHotels(true);
+                  }}
+                >
+                  <Text className="sort-tab-text">{option.label}</Text>
+                </View>
+                {sortBy === option.key && (
+                  <View
+                    className="sort-order-toggle"
+                    onClick={() => {
+                      setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+                      loadHotels(true);
+                    }}
+                    onTap={() => {
+                      setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+                      loadHotels(true);
+                    }}
+                  >
+                    <Text className="sort-order-icon">{sortOrder === 'asc' ? '↑' : '↓'}</Text>
+                  </View>
+                )}
+              </View>
             )}
           </View>
         ))}
