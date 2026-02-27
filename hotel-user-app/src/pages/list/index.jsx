@@ -24,6 +24,8 @@ const ListPage = () => {
   const [filterVisible, setFilterVisible] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [pointsEnabled, setPointsEnabled] = useState(false);
+  const [viewedHotels, setViewedHotels] = useState([]);
   const { getApprovedOnlineHotels, searchParams, updateSearchParams } = useHotelStore();
 
   const cities = [
@@ -205,6 +207,12 @@ const ListPage = () => {
       setSelectedTags(savedQuickTags);
     }
     
+    // 从本地存储中加载浏览历史
+    const savedViewedHotels = Taro.getStorageSync('viewedHotels');
+    if (savedViewedHotels) {
+      setViewedHotels(savedViewedHotels);
+    }
+    
     // 确保所有数据初始化后再加载酒店
     setTimeout(() => {
       loadHotels(true);
@@ -256,7 +264,7 @@ const ListPage = () => {
     loadHotels(true);
   };
 
-  const loadHotels = (isRefresh = false) => {
+  const loadHotels = (isRefresh = false, overridePointsEnabled = null) => {
     const page = isRefresh ? 1 : currentPage + 1;
     let hotels = getApprovedOnlineHotels();
 
@@ -331,6 +339,20 @@ const ListPage = () => {
       );
     }
 
+    // 应用积分抵扣
+    const isPointsEnabled = overridePointsEnabled !== null ? overridePointsEnabled : pointsEnabled;
+    hotels = hotels.map(hotel => {
+      // 保存原始价格
+      const originalPrice = hotel.price;
+      // 计算抵扣后的价格
+      const discountedPrice = isPointsEnabled ? Math.max(0, originalPrice - 25) : originalPrice;
+      return {
+        ...hotel,
+        price: discountedPrice,
+        originalPrice: originalPrice
+      };
+    });
+
     hotels = sortHotels(hotels, sortBy);
 
     if (isRefresh) {
@@ -367,6 +389,16 @@ const ListPage = () => {
   };
 
   const handleHotelClick = (hotelId) => {
+    // 添加到浏览历史
+    setViewedHotels(prev => {
+      if (!prev.includes(hotelId)) {
+        const updatedViewed = [...prev, hotelId];
+        // 保存到本地存储
+        Taro.setStorageSync('viewedHotels', updatedViewed);
+        return updatedViewed;
+      }
+      return prev;
+    });
     Taro.navigateTo({
       url: `/pages/detail/index?id=${hotelId}`
     });
@@ -653,12 +685,16 @@ const ListPage = () => {
   };
 
   const handlePointsToggle = () => {
-    // 实际功能：切换积分抵扣
+    // 切换积分抵扣状态
+    const newState = !pointsEnabled;
+    setPointsEnabled(newState);
     Taro.showToast({
-      title: '积分抵扣已' + (Math.random() > 0.5 ? '开启' : '关闭'),
+      title: '积分抵扣已' + (newState ? '开启' : '关闭'),
       icon: 'success',
       duration: 1000
     });
+    // 重新加载酒店列表以显示积分抵扣后的价格，传递新的状态值
+    loadHotels(true, newState);
   };
 
   const handleRatingClick = (hotel) => {
@@ -951,7 +987,7 @@ const ListPage = () => {
           <Text className="points-subtext">打开开关看积分抵后价</Text>
         </View>
         <View className="points-toggle">
-          <View className="toggle-switch" />
+          <View className={`toggle-switch ${pointsEnabled ? 'toggle-switch-active' : ''}`} />
         </View>
       </View>
 
@@ -973,19 +1009,21 @@ const ListPage = () => {
                 src={hotel.imageUrl} 
                 mode="aspectFill" 
               />
-              <View 
-                className="hotel-badge"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  Taro.showToast({ title: '浏览历史', icon: 'none' });
-                }}
-                onTap={(e) => {
-                  e.stopPropagation();
-                  Taro.showToast({ title: '浏览历史', icon: 'none' });
-                }}
-              >
-                <Text className="hotel-badge-text">浏览过</Text>
-              </View>
+              {viewedHotels.includes(hotel.id) && (
+                <View 
+                  className="hotel-badge"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    Taro.showToast({ title: '浏览历史', icon: 'none' });
+                  }}
+                  onTap={(e) => {
+                    e.stopPropagation();
+                    Taro.showToast({ title: '浏览历史', icon: 'none' });
+                  }}
+                >
+                  <Text className="hotel-badge-text">浏览过</Text>
+                </View>
+              )}
             </View>
             <View className="hotel-info">
               <View className="hotel-header">
@@ -1104,7 +1142,7 @@ const ListPage = () => {
                     Taro.showToast({ title: '原价', icon: 'none' });
                   }}
                 >
-                  ¥{hotel.price + 200}
+                  ¥{hotel.originalPrice || hotel.price}
                 </Text>
                 <Text 
                   className="discount-tag"

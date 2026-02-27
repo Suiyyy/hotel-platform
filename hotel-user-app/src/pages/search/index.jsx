@@ -668,7 +668,7 @@ const SearchPage = () => {
           ))}
         </View>
 
-        <Button className="search-button" onClick={handleSearch} onTap={handleSearch}>
+        <Button className="search-page-button" onClick={handleSearch} onTap={handleSearch}>
           查 询
         </Button>
       </View>
