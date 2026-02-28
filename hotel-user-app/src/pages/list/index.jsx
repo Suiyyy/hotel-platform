@@ -71,17 +71,6 @@ const ListPage = () => {
 
   const filterOptions = [
     {
-      category: '酒店类型',
-      options: [
-        { id: 'type-1', label: '经济型' },
-        { id: 'type-2', label: '舒适型' },
-        { id: 'type-3', label: '高档型' },
-        { id: 'type-4', label: '豪华型' },
-        { id: 'type-5', label: '民宿' },
-        { id: 'type-6', label: '青旅' }
-      ]
-    },
-    {
       category: '设施服务',
       options: [
         { id: 'facility-1', label: '免费WiFi' },
@@ -118,11 +107,14 @@ const ListPage = () => {
         { id: 'brand-3', label: '宜必思' },
         { id: 'brand-4', label: '全季' },
         { id: 'brand-5', label: '亚朵' },
-        { id: 'brand-6', label: '希尔顿' },
-        { id: 'brand-7', label: '洲际' },
-        { id: 'brand-8', label: '万豪' },
-        { id: 'brand-9', label: '凯悦' },
-        { id: 'brand-10', label: '悦榕庄' }
+        { id: 'brand-6', label: '希尔顿欢朋' },
+        { id: 'brand-7', label: '希尔顿花园' },
+        { id: 'brand-8', label: '洲际' },
+        { id: 'brand-9', label: '万豪' },
+        { id: 'brand-10', label: '凯悦' },
+        { id: 'brand-11', label: '悦榕庄' },
+        { id: 'brand-12', label: '民宿' },
+        { id: 'brand-13', label: '青年旅舍' }
       ]
     }
   ];
