@@ -4,10 +4,7 @@
   padding: 24px;
 }
 
-.hotel-audit-container h2 {
-  font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 20px;
+.hotel-audit-container .page-title {
   padding-bottom: 12px;
   border-bottom: 2px solid #1677ff;
   display: inline-block;
@@ -19,7 +16,6 @@
   animation: adminFadeIn 0.4s ease-out both;
 }
 
-/* 表格行 hover */
 .hotel-audit-container .ant-table-tbody > tr {
   transition: background-color 0.2s ease;
 }

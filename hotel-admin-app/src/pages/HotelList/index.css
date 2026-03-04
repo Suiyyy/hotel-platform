@@ -4,10 +4,7 @@
   padding: 24px;
 }
 
-.hotel-list-container h2 {
-  font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 20px;
+.hotel-list-container .page-title {
   padding-bottom: 12px;
   border-bottom: 2px solid #1677ff;
   display: inline-block;
@@ -17,9 +14,4 @@
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.03);
   animation: adminFadeIn 0.4s ease-out both;
-}
-
-/* 表格行 hover */
-.hotel-list-container .ant-table-tbody > tr {
-  transition: background-color 0.2s ease;
 }

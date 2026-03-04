@@ -1,0 +1,531 @@
+/* ============================================
+   H5 Responsive Design Styles
+   Similar to Ctrip/Booking.com mobile web
+   Only applies to H5 build, not Mini-Program
+   ============================================ */
+
+/* ============================================
+   1. Main Container - Mobile App Simulation
+   ============================================ */
+
+/* Desktop wrapper - simulates mobile app on larger screens */
+@media (min-width: 500px) {
+  /* Main page container - centered with max-width */
+  .taro_router_page,
+  .taro_page {
+    max-width: 500px;
+    margin: 0 auto;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+    background-color: #f5f5f5;
+    position: relative;
+  }
+
+  /* Body background for desktop */
+  body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+  }
+
+  /* App container */
+  #app {
+    max-width: 500px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+}
+
+/* Larger screens - tablet and desktop */
+@media (min-width: 768px) {
+  .taro_router_page,
+  .taro_page {
+    max-width: 520px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .taro_router_page,
+  .taro_page {
+    max-width: 540px;
+  }
+}
+
+/* ============================================
+   2. Hotel Card - Responsive Design
+   ============================================ */
+
+/* Base hotel card improvements */
+.hotel-card {
+  background-color: #fff;
+  margin: 12px;
+  border-radius: 16px;
+  display: flex;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.hotel-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.hotel-card:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Hotel image - consistent proportions */
+.hotel-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* Desktop optimizations for hotel cards */
+@media (min-width: 500px) {
+  .hotel-card {
+    margin: 12px 16px;
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .hotel-image {
+    width: 140px;
+    height: 140px;
+    border-radius: 16px;
+  }
+
+  .hotel-name {
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .hotel-address {
+    font-size: 14px;
+  }
+
+  .hotel-description {
+    font-size: 14px;
+  }
+
+  .hotel-price {
+    font-size: 22px;
+    font-weight: 700;
+  }
+}
+
+/* ============================================
+   3. Search Page - Responsive Design
+   ============================================ */
+
+/* Search form container */
+.search-form-container {
+  background-color: #fff;
+  margin: -10px 16px 16px;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 20;
+}
+
+/* Desktop optimizations for search page */
+@media (min-width: 500px) {
+  .search-form-container {
+    margin: -10px auto 16px;
+    padding: 24px;
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  }
+
+  .location-text {
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  .date-display {
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .guests-text {
+    font-size: 18px;
+  }
+
+  .search-button {
+    height: 56px;
+    border-radius: 28px;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  /* Quick tags */
+  .quick-tags {
+    padding: 16px 0;
+  }
+
+  .quick-tag {
+    padding: 10px 20px;
+    border-radius: 24px;
+    font-size: 15px;
+  }
+
+  /* Recommended tags */
+  .recommended-tags {
+    padding: 24px;
+    border-radius: 20px;
+    margin: 0 16px 16px;
+  }
+
+  .tag-item {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .tag-icon {
+    font-size: 28px;
+  }
+
+  .tag-name {
+    font-size: 15px;
+  }
+}
+
+/* ============================================
+   4. Banner - Desktop Optimization
+   ============================================ */
+
+@media (min-width: 500px) {
+  .banner-container {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .banner-swiper {
+    height: 160px;
+    border-radius: 0;
+  }
+
+  .banner-overlay {
+    padding: 16px;
+  }
+
+  .banner-title {
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .banner-subtitle {
+    font-size: 14px;
+  }
+
+  .banner-price {
+    font-size: 16px;
+    font-weight: 700;
+  }
+}
+
+/* ============================================
+   5. Detail Page - Responsive Design
+   ============================================ */
+
+@media (min-width: 500px) {
+  .detail-page {
+    background-color: #f5f5f5;
+  }
+
+  .hotel-detail-name {
+    font-size: 26px;
+    font-weight: 700;
+  }
+
+  .room-card {
+    margin: 12px 16px;
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .room-type-name {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .room-price {
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  /* Facilities */
+  .facilities-row {
+    padding: 20px 0;
+  }
+
+  .facility-item {
+    padding: 12px 16px;
+    border-radius: 12px;
+  }
+}
+
+/* ============================================
+   6. Calendar Component - Desktop Optimization
+   ============================================ */
+
+@media (min-width: 500px) {
+  .calendar-popup {
+    max-width: 500px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    bottom: 20px;
+    border-radius: 24px;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
+  }
+
+  .calendar-header {
+    padding: 20px 24px;
+  }
+
+  .header-title {
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .calendar-day {
+    min-height: 56px;
+    border-radius: 12px;
+  }
+
+  .day-number {
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .complete-btn {
+    padding: 16px;
+    font-size: 18px;
+    font-weight: 600;
+    border-radius: 12px;
+  }
+}
+
+/* ============================================
+   7. List Page - Responsive Design
+   ============================================ */
+
+@media (min-width: 500px) {
+  .list-page {
+    background-color: #f5f5f5;
+  }
+
+  .top-header {
+    padding: 16px 20px;
+  }
+
+  .sort-tabs {
+    padding: 16px 0;
+  }
+
+  .sort-tab {
+    padding: 10px 20px;
+  }
+
+  .sort-tab-text {
+    font-size: 15px;
+  }
+
+  .filter-tags {
+    padding: 16px 20px;
+  }
+
+  .filter-tag {
+    padding: 10px 20px;
+    border-radius: 24px;
+  }
+
+  .filter-tag-text {
+    font-size: 14px;
+  }
+}
+
+/* ============================================
+   8. Bottom Navigation - Desktop Optimization
+   ============================================ */
+
+@media (min-width: 500px) {
+  .bottom-nav {
+    max-width: 500px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .nav-item {
+    padding: 10px;
+  }
+
+  .nav-icon {
+    font-size: 26px;
+  }
+
+  .nav-text {
+    font-size: 13px;
+  }
+}
+
+/* ============================================
+   9. Price Filter Page - Responsive Design
+   ============================================ */
+
+@media (min-width: 500px) {
+  .price-filter-page {
+    background-color: #f5f5f5;
+  }
+
+  .price-range-container {
+    padding: 24px;
+    margin: 16px;
+    border-radius: 20px;
+  }
+
+  .price-input {
+    padding: 14px 20px;
+    font-size: 18px;
+    border-radius: 12px;
+  }
+
+  .confirm-button {
+    height: 56px;
+    font-size: 18px;
+    border-radius: 28px;
+  }
+}
+
+/* ============================================
+   10. Common UI Elements - Desktop Polish
+   ============================================ */
+
+/* Buttons */
+@media (min-width: 500px) {
+  .search-button,
+  .confirm-button,
+  .complete-btn {
+    transition: all 0.3s ease;
+  }
+
+  .search-button:hover,
+  .confirm-button:hover,
+  .complete-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(24, 144, 255, 0.4);
+  }
+}
+
+/* Input fields */
+@media (min-width: 500px) {
+  input,
+  .search-input,
+  .price-input {
+    font-size: 16px;
+    padding: 14px 16px;
+  }
+}
+
+/* Toast messages */
+@media (min-width: 500px) {
+  .taro-toast {
+    max-width: 400px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 12px;
+    padding: 16px 24px;
+  }
+}
+
+/* ============================================
+   11. Smooth Scrolling & Animations
+   ============================================ */
+
+/* Smooth scrolling for better UX */
+.taro_router_page,
+.taro_page {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Smooth transitions for interactive elements */
+.hotel-card,
+.quick-tag,
+.tag-item,
+.sort-tab,
+.filter-tag,
+.search-button,
+.confirm-button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   12. Loading States & Skeleton Screens
+   ============================================ */
+
+/* Skeleton loading animation */
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+.skeleton {
+  animation-duration: 1.25s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: shimmer;
+  animation-timing-function: linear;
+  background: linear-gradient(to right, #f6f6f6 8%, #f0f0f0 18%, #f6f6f6 33%);
+  background-size: 800px 104px;
+  position: relative;
+}
+
+/* ============================================
+   13. Safe Area for Notched Devices
+   ============================================ */
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .bottom-nav {
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  }
+
+  .hotel-card:last-child {
+    margin-bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+}
+
+/* ============================================
+   14. Print Styles
+   ============================================ */
+
+@media print {
+  .bottom-nav,
+  .banner-container,
+  .calendar-popup-container {
+    display: none;
+  }
+
+  .taro_router_page,
+  .taro_page {
+    max-width: 100%;
+    box-shadow: none;
+  }
+
+  .hotel-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

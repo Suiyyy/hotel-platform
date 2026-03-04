@@ -181,7 +181,7 @@ app.post('/hotels', authMiddleware, validateHotelCreate, async (req: Request, re
   }
 })
 
-app.patch('/hotels/:id', validateHotelPatch, async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
+app.patch('/hotels/:id', authMiddleware, validateHotelPatch, async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params
     const patch = (req.body ?? {}) as Partial<IHotel>
@@ -211,7 +211,7 @@ app.patch('/hotels/:id', validateHotelPatch, async (req: Request<{ id: string }>
 
 // ==================== Soft Delete & Restore ====================
 
-app.delete('/hotels/:id', async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
+app.delete('/hotels/:id', authMiddleware, async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params
     const existing = await getHotel(id)
@@ -227,7 +227,7 @@ app.delete('/hotels/:id', async (req: Request<{ id: string }>, res: Response, ne
   }
 })
 
-app.patch('/hotels/:id/restore', async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
+app.patch('/hotels/:id/restore', authMiddleware, async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params
     const existing = await getHotel(id)

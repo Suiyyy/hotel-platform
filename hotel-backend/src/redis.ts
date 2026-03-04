@@ -1,4 +1,4 @@
-import Redis from 'ioredis'
+import { Redis } from 'ioredis'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import type { IHotel, IHotelDatabase, IUser } from './types/hotel.js'

@@ -4,10 +4,7 @@
   padding: 24px;
 }
 
-.hotel-add-container h2 {
-  font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 20px;
+.hotel-add-container .page-title {
   padding-bottom: 12px;
   border-bottom: 2px solid #1677ff;
   display: inline-block;
@@ -32,15 +29,6 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
-/* 提交按钮微反馈 */
-.hotel-add-container .ant-btn-primary {
-  transition: transform 0.15s ease;
-}
-.hotel-add-container .ant-btn-primary:active {
-  transform: scale(0.97);
-}
-
-/* AI 润色按钮 */
 .ai-polish-btn {
   background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
   color: #fff !important;
@@ -53,7 +41,6 @@
   opacity: 0.85;
 }
 
-/* 设施标签 */
 .facility-checkbox-group {
   display: flex;
   flex-wrap: wrap;
